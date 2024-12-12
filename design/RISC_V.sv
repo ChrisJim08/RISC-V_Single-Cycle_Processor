@@ -5,7 +5,7 @@
 // 
 // Create Date: 12/12/2024
 // Design Name: 
-// Module Name: alu_controller
+// Module Name: RISC_V
 // Project Name: RISC-V Single-Cycle Processor
 // Target Devices: 
 // Tool Versions: 
@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module alu_controller ();
+module RISC_V();
 
 
 endmodule
