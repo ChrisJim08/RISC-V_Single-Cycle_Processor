@@ -1,2 +1,6 @@
-#ignore test files
-
+# Simulation and build files
+*.vcd
+*.log
+*.out
+*.tcl
+sim_build/
