@@ -3,4 +3,5 @@
 *.log
 *.out
 *.tcl
+*.f
 sim_build/
