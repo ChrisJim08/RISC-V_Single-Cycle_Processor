@@ -26,11 +26,11 @@ module regfile #(
 ) (
   input  logic                    clk_i,
   input  logic                    rst_i,
-  input  logic                    write_enable_i,
+  input  logic                    wr_en_i,
   input  logic [AddressWidth-1:0] read_address1_i,
   input  logic [AddressWidth-1:0] read_address2_i,
-  input  logic [AddressWidth-1:0] write_address_i,
-  input  logic [DataWidth-1:0]    write_data_i,
+  input  logic [AddressWidth-1:0] wr_addr_i,
+  input  logic [DataWidth-1:0]    wr_data_i,
   output logic [DataWidth-1:0]    read_data1_o,
   output logic [DataWidth-1:0]    read_data2_o
 );
@@ -39,12 +39,12 @@ module regfile #(
   logic [DataWidth-1:0] register_file [NumRegs-1:0];
 
   always_ff @(posedge clk_i) begin 
-    if(rst_i) begin 
+    if (rst_i) begin 
       for (i = 1; i < NumRegs; i++) begin 
         register_file[i] <= '0;
       end
-    end else if(write_enable_i && (write_address_i != '0) ) begin
-      register_file[write_address_i] <= write_data_i;
+    end else if (wr_en_i && (wr_addr_i != '0) ) begin
+      register_file[wr_addr_i] <= wr_data_i;
     end
   end
 

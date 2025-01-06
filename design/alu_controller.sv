@@ -19,7 +19,19 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module alu_controller ();
+module alu_controller (
+  input logic  [1:0] alu_ctrl_op_i,
+  input logic  [2:0] funct3_i, 
+  input logic  [6:0] funct7_i,
+  output logic [3:0] alu_op_o
+);
 
+  assign alu_op_o[0] = 1;
+
+  assign alu_op_o[1] = 1;
+  
+  assign alu_op_o[2] = 1;
+
+  assign alu_op_o[3] = 1;
 
 endmodule

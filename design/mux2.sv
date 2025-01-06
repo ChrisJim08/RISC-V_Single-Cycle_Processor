@@ -19,7 +19,16 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module mux2();
+module mux2 #(
+  parameter DataWidth = 32
+) (
+  input  logic sel_i,
+  input  logic [DataWidth-1:0] in0_i,
+  input  logic [DataWidth-1:0] in1_i,
+  output logic [DataWidth-1:0] out_o
+);
+
+assign out_o = (sel_i) ? in1_i : in0_i;
 
 
 endmodule
