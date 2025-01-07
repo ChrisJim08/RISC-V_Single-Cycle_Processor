@@ -3,6 +3,8 @@ module branch_unit #(
   parameter PcWidth = 9
 ) (
   input logic pc_i,
+  input logic imm_i,
+  
   input logic branch_i,
   input logic [31:0] blah,
   output logic [PcWidth-1:0] next_pc_o

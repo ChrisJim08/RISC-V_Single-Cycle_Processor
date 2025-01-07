@@ -5,7 +5,7 @@
 // 
 // Create Date: 12/12/2024
 // Design Name: 
-// Module Name: flopr
+// Module Name: RISC_V
 // Project Name: RISC-V Single-Cycle Processor
 // Target Devices: 
 // Tool Versions: 
@@ -19,21 +19,30 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module flopr #(
+module moduleName #(
   parameter DataWidth = 32
-)(
-  input  logic rst_i,
-  input  logic clk_i,
-  input  logic [DataWidth-1:0] d_i,
-  output logic [DataWidth-1:0] q_o
+) (
+  input  logic        clk_i,
+  input  logic        rst_i, 
+  output logic [31:0] wb_data_o
 );
 
-always_ff @(posedge clk_i) begin
-  if (rst_i) begin 
-    q_o <= '0;
-  end else begin
-    q_o <= d_i;
-  end
-end
+  logic [6:0] opcode;
 
+  logic alu_src, branch;
+  logic [2:0] funct3;
+  logic [6:0] funct7;
+  logic [1:0] alu_op;
+  logic [3:0] alu_ctrl_op; 
+
+  logic mem, mem_reg, reg_mem, reg_wr, mem_rd, mem_wr;
+
+  logic Con_Jalr, Con_beq, Con_bnq, Con_bgt, Con_blt, Con_Jal, OpI, AUIPC, LUI;
+
+  controller ctrl();
+
+  alu_controller alu_ctrl();
+
+  datapath dp();
+  
 endmodule

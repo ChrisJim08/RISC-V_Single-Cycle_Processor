@@ -27,12 +27,12 @@ module regfile #(
   input  logic                    clk_i,
   input  logic                    rst_i,
   input  logic                    wr_en_i,
-  input  logic [AddressWidth-1:0] read_address1_i,
-  input  logic [AddressWidth-1:0] read_address2_i,
   input  logic [AddressWidth-1:0] wr_addr_i,
+  input  logic [AddressWidth-1:0] rd1_addr_i,
+  input  logic [AddressWidth-1:0] rd2_addr_i,
   input  logic [DataWidth-1:0]    wr_data_i,
-  output logic [DataWidth-1:0]    read_data1_o,
-  output logic [DataWidth-1:0]    read_data2_o
+  output logic [DataWidth-1:0]    rd1_data_o,
+  output logic [DataWidth-1:0]    rd2_data_o
 );
   integer i;
 
@@ -50,7 +50,7 @@ module regfile #(
 
   assign register_file[0] = '0;
   
-  assign read_data1_o = register_file[read_address1_i];
-  assign read_data2_o = register_file[read_address2_i];
+  assign rd1_data_o = register_file[rd1_addr_i];
+  assign rd2_data_o = register_file[rd2_addr_i];
 
 endmodule

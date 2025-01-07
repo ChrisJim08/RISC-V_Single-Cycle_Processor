@@ -22,8 +22,8 @@
 module alu #(
   parameter DataWidth = 32
 )(
-  input  logic [DataWidth-1:0]   a_i,
-  input  logic [DataWidth-1:0]   b_i,
+  input  logic [DataWidth-1:0]   src1_i,
+  input  logic [DataWidth-1:0]   src2_i,
   input  logic [3:0]             alu_op_i,
   output logic [DataWidth-1:0]   result_o
 );

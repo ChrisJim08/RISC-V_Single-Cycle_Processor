@@ -1,6 +1,9 @@
 ////////////////////////////////////////////////////////
 // Files
+definitions.svh
 design/regfile.sv
+design/imm_decoder.sv
+design/mux2.sv
 
 // TOP Module
 //--top 

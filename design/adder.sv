@@ -20,11 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module adder(
-    input  logic [31:0] a, 
-    input  logic [31:0] b,
-    output logic [31:0] y);
+    input  logic [31:0] a_i, 
+    input  logic [31:0] b_i,
+    output logic [31:0] y_o);
 
-  assign y = a + b;
+  assign y_o = a_i + b_i;
 
 endmodule
 
