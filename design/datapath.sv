@@ -19,7 +19,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module datapath (
+module datapath #(
+  parameter AddressWidth = 10
+)(
   input  logic       clk_i,
   input  logic       rst_i,
   input  logic       wr_en_i,
@@ -30,9 +32,9 @@ module datapath (
   output logic [3:0] alu_ctrl_op_o
 );
   //Program Counter Wires
-  logic [31:0] pc;
-  logic [31:0] pc_plus4;
-  logic [31:0] next_pc;
+  logic [AddressWidth-1:0] pc;
+  logic [AddressWidth-1:0] pc_plus4;
+  logic [AddressWidth-1:0] next_pc;
   //ALU Wires
   logic        alu_src2_sel;
   logic [31:0] alu_src1;
@@ -52,50 +54,62 @@ module datapath (
 
   logic [31:0] data_mem_rd_data;
 
-  instr_mem instr_mem(
+  assign funct3_o = instr[14:12];
+
+  instr_mem instr_mem (
     .r_addr_i(pc),
     .r_data_o(instr)
   );
 
-  data_mem data_mem(
-
+  data_mem data_mem (
+    .clk_i(clk_i),
+    .r_en_i(),
+    .wr_en_i(),
+    .addr_i(),
+    .wr_data_i(),
+    .funct3_i(),
+    .r_data_o()
   );
 
-  flop_reg pc_reg(
+  flop_reg #(
+    .DataWidth(AddressWidth)
+  ) pc_reg (
     .rst_i(rst_i),
     .clk_i(clk_i),
     .d_i(next_pc),
     .q_o(pc)
   );
 
-  adder pc_adder(
+  adder #(
+    .DataWidth(AddressWidth)
+  ) pc_adder (
     .a_i(pc),
-    .b_i(32'd4), 
+    .b_i({{(AddressWidth-3){1'b0}},3'd4}), 
     .y_o(pc_plus4)
   );
 
-  mux2 alu_src2_mux(
+  mux2 alu_src2_mux (
     .sel_i(alu_src2_sel), 
     .in0_i(regf_rd2_data), 
     .in1_i(imm), 
     .out_o(alu_src2)
   );
 
-  mux2 regf_wr_src_mux(
+  mux2 regf_wr_src_mux (
     .sel_i(regf_wr_src_sel), 
     .in0_i(alu_result), 
     .in1_i(data_mem_rd_data), 
     .out_o(regf_wr_data)
   );
 
-  alu alu(
+  alu alu (
     .src1_i(alu_src1), 
     .src2_i(alu_src2), 
     .alu_op_i(alu_op_i), 
     .result_o(alu_result)
   );
 
-  regfile regfile(
+  regfile regfile (
     .clk_i(clk_i), 
     .rst_i(rst_i), 
     .wr_en_i(wr_en_i), 
@@ -107,7 +121,7 @@ module datapath (
     .rd1_data_o(regf_rd2_data)
   );
   
-  imm_decoder imm_decoder(
+  imm_decoder imm_decoder (
     .instr_i(instr), 
     .imm_o(imm)
   );

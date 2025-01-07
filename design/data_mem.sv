@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module moduleName #(
+module data_mem #(
   parameter AddressWidth = 10
 ) (
   input logic                     clk_i,
@@ -27,7 +27,7 @@ module moduleName #(
   input logic                     wr_en_i,
   input logic  [AddressWidth-1:0] addr_i,
   input logic  [31:0]             wr_data_i,
-  input logic  [2:0]              funct3,
+  input logic  [2:0]              funct3_i,
   output logic [31:0]             r_data_o
 );
 
@@ -35,7 +35,7 @@ module moduleName #(
 
   always_comb begin
     if(r_en_i) begin
-      case (funct3)
+      case (funct3_i)
         3'b000: begin //LB
           r_data_o = {{24{mem[addr_i][7]}}, 
                       mem[addr_i][7:0]};
@@ -64,7 +64,7 @@ module moduleName #(
     
   always @(posedge clk_i) begin
     if (wr_en_i) begin
-      case(funct3)
+      case(funct3_i)
         3'b000: begin //SB
             mem[addr_i][7:0] =  wr_data_i[7:0];
         end
