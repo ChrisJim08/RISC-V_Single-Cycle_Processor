@@ -1,9 +1,14 @@
 ////////////////////////////////////////////////////////
 // Files
 definitions.svh
+design/adder.sv
+design/flop_reg.sv
 design/regfile.sv
 design/imm_decoder.sv
 design/mux2.sv
+//design/datapath.sv
+design/instr_mem.sv
+design/data_mem.sv
 
 // TOP Module
 //--top 

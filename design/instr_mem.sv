@@ -66,4 +66,3 @@ module instr_mem #(
   assign r_data_o =  mem[r_addr_i[AddressWidth-1:2]];  
 
 endmodule
-

@@ -30,5 +30,4 @@ module mux2 #(
 
 assign out_o = (sel_i) ? in1_i : in0_i;
 
-
 endmodule

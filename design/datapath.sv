@@ -51,10 +51,10 @@ module datapath #(
   logic [31:0] regf_rd1_data;
   logic [31:0] regf_rd2_data;
 
+  logic [31:0] data_mem_r_data;
+
   logic [31:0] imm;
   logic [31:0] instr;
-
-  logic [31:0] data_mem_r_data;
 
   assign funct3_o = instr[14:12];
 
