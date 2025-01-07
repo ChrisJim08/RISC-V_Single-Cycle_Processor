@@ -24,7 +24,9 @@ module datapath #(
 )(
   input  logic       clk_i,
   input  logic       rst_i,
-  input  logic       wr_en_i,
+  input  logic       regf_wr_en_i,
+  input  logic       mem_wr_en_i,
+  input  logic       mem_r_en_i,
   input  logic [3:0] alu_op_i,
   output logic [6:0] op_code_o,
   output logic [2:0] funct3_o,
@@ -52,7 +54,7 @@ module datapath #(
   logic [31:0] imm;
   logic [31:0] instr;
 
-  logic [31:0] data_mem_rd_data;
+  logic [31:0] data_mem_r_data;
 
   assign funct3_o = instr[14:12];
 
@@ -63,12 +65,12 @@ module datapath #(
 
   data_mem data_mem (
     .clk_i(clk_i),
-    .r_en_i(),
-    .wr_en_i(),
-    .addr_i(),
-    .wr_data_i(),
-    .funct3_i(),
-    .r_data_o()
+    .r_en_i(mem_r_en_i),
+    .wr_en_i(mem_wr_en_i),
+    .addr_i(alu_result[AddressWidth-1:0]),
+    .wr_data_i(regf_rd2_data),
+    .funct3_i(funct3_o),
+    .r_data_o(data_mem_r_data)
   );
 
   flop_reg #(
@@ -98,7 +100,7 @@ module datapath #(
   mux2 regf_wr_src_mux (
     .sel_i(regf_wr_src_sel), 
     .in0_i(alu_result), 
-    .in1_i(data_mem_rd_data), 
+    .in1_i(data_mem_r_data), 
     .out_o(regf_wr_data)
   );
 
@@ -112,7 +114,7 @@ module datapath #(
   regfile regfile (
     .clk_i(clk_i), 
     .rst_i(rst_i), 
-    .wr_en_i(wr_en_i), 
+    .wr_en_i(regf_wr_en_i), 
     .wr_addr_i(regf_wr_addr), 
     .rd1_addr_i(regf_rd1_addr), 
     .rd2_addr_i(regf_rd2_addr), 
