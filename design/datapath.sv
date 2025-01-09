@@ -34,11 +34,14 @@ module datapath #(
   output logic [3:0] alu_ctrl_op_o
 );
   //Program Counter Wires
+  logic                    pc_src_sel;
+  logic [AddressWidth-1:0] target_pc;
   logic [AddressWidth-1:0] pc;
   logic [AddressWidth-1:0] pc_plus4;
   logic [AddressWidth-1:0] next_pc;
   //ALU Wires
   logic        alu_src2_sel;
+  logic        alu_flag; //rename?
   logic [31:0] alu_src1;
   logic [31:0] alu_src2;
   logic [31:0] alu_result;
@@ -57,6 +60,9 @@ module datapath #(
   logic [31:0] instr;
 
   assign funct3_o = instr[14:12];
+  
+  assign alu_flag = alu_result[0];
+
 
   instr_mem instr_mem (
     .r_addr_i(pc),
@@ -82,6 +88,26 @@ module datapath #(
     .q_o(pc)
   );
 
+  branch_unit branch_unit (
+    .jal_i(),
+    .jalr_i(),
+    .branch_i(),
+    .pc_i(pc),
+    .pc_offset_i(),
+    .alu_result_i(alu_result),
+    .pc_src_mux(pc_src_sel),
+    .pc_target(target_pc)
+  );
+
+  mux2 #(
+    .DataWidth(AddressWidth)
+  ) pc_mux (
+    .sel_i(pc_src_sel),
+    .in0_i(pc_plus4),
+    .in1_i(target_pc),
+    .out_o(next_pc)
+  );
+
   adder #(
     .DataWidth(AddressWidth)
   ) pc_adder (
@@ -90,25 +116,18 @@ module datapath #(
     .y_o(pc_plus4)
   );
 
-  mux2 alu_src2_mux (
-    .sel_i(alu_src2_sel), 
-    .in0_i(regf_rd2_data), 
-    .in1_i(imm), 
-    .out_o(alu_src2)
-  );
-
-  mux2 regf_wr_src_mux (
-    .sel_i(regf_wr_src_sel), 
-    .in0_i(alu_result), 
-    .in1_i(data_mem_r_data), 
-    .out_o(regf_wr_data)
-  );
-
   alu alu (
     .src1_i(alu_src1), 
     .src2_i(alu_src2), 
     .alu_op_i(alu_op_i), 
     .result_o(alu_result)
+  );
+
+  mux2 alu_src2_mux (
+    .sel_i(alu_src2_sel), 
+    .in0_i(regf_rd2_data), 
+    .in1_i(imm), 
+    .out_o(alu_src2)
   );
 
   regfile regfile (
@@ -121,6 +140,13 @@ module datapath #(
     .wr_data_i(regf_wr_data), 
     .rd2_data_o(regf_rd1_data), 
     .rd1_data_o(regf_rd2_data)
+  );
+
+  mux2 regf_wr_src_mux (
+    .sel_i(regf_wr_src_sel), 
+    .in0_i(alu_result), 
+    .in1_i(data_mem_r_data), 
+    .out_o(regf_wr_data)
   );
   
   imm_decoder imm_decoder (
