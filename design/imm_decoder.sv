@@ -24,6 +24,7 @@ module imm_decoder (
   input  logic [31:0] instr_i,
   output logic [31:0] imm_o
 );
+
   logic [6:0] op_code = instr_i[6:0];
 
   always_comb begin
