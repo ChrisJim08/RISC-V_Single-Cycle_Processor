@@ -23,12 +23,12 @@ module branch_unit #(
   parameter AddressWidth = 10
 ) (
   input  logic                    jal_i,
-  input  logic                    jalr_i, 
+  input  logic                    jalr_i,
   input  logic                    branch_i,
   input  logic [AddressWidth-1:0] pc_i,
   input  logic [DataWidth-1:0]    pc_offset_i,
   input  logic [DataWidth-1:0]    alu_result_i,
-  output logic                    pc_src_mux, 
+  output logic                    pc_src_mux,
   output logic [AddressWidth-1:0] pc_target
 );
 
@@ -38,12 +38,12 @@ module branch_unit #(
 
   assign alu_flag = alu_result_i[0];
 
-  assign extended_pc = {{(DataWidth-AddressWidth){1'b0}}, 
+  assign extended_pc = {{(DataWidth-AddressWidth){1'b0}},
                         pc_i};
 
   adder pc_imm_adder (
     .a_i(extended_pc),
-    .b_i(pc_offset_i), 
+    .b_i(pc_offset_i),
     .y_o(pc_plus_imm)
   );
 

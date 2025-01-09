@@ -24,6 +24,9 @@ module datapath #(
 )(
   input  logic       clk_i,
   input  logic       rst_i,
+  input  logic       jal_i,
+  input  logic       jalr_i,
+  input  logic       branch_i,
   input  logic       regf_wr_en_i,
   input  logic       mem_wr_en_i,
   input  logic       mem_r_en_i,
@@ -68,6 +71,11 @@ module datapath #(
     .r_addr_i(pc),
     .r_data_o(instr)
   );
+  
+  imm_decoder imm_decoder (
+    .instr_i(instr), 
+    .imm_o(imm)
+  );
 
   data_mem data_mem (
     .clk_i(clk_i),
@@ -93,7 +101,7 @@ module datapath #(
     .jalr_i(),
     .branch_i(),
     .pc_i(pc),
-    .pc_offset_i(),
+    .pc_offset_i(imm),
     .alu_result_i(alu_result),
     .pc_src_mux(pc_src_sel),
     .pc_target(target_pc)
@@ -147,11 +155,6 @@ module datapath #(
     .in0_i(alu_result), 
     .in1_i(data_mem_r_data), 
     .out_o(regf_wr_data)
-  );
-  
-  imm_decoder imm_decoder (
-    .instr_i(instr), 
-    .imm_o(imm)
   );
 
 endmodule
