@@ -100,10 +100,11 @@ module datapath #(
     .jalr_i(jalr_i),
     .branch_i(branch_i),
     .pc_i(pc),
-    .pc_offset_i(imm),
-    .alu_result_i(alu_result),
-    .pc_src_mux(pc_src_sel),
-    .pc_target(target_pc)
+    .addr_offset_i(imm),
+    .rs1_data_i(regf_rd1_data),
+    .alu_flag_i(alu_flag),
+    .pc_src_sel_o(pc_src_sel),
+    .pc_target_o(target_pc)
   );
 
   mux2 #(
