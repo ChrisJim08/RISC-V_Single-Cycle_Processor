@@ -27,6 +27,7 @@ module branch_unit #(
   input  logic                    branch_i,
   input  logic [AddressWidth-1:0] pc_i,
   input  logic [DataWidth-1:0]    pc_offset_i,
+  input  logic [DataWidth-1:0]    rs1_data_i,
   input  logic [DataWidth-1:0]    alu_result_i,
   output logic                    pc_src_mux,
   output logic [AddressWidth-1:0] pc_target
@@ -35,14 +36,22 @@ module branch_unit #(
   logic                 alu_flag;
   logic [DataWidth-1:0] pc_plus_imm;
   logic [DataWidth-1:0] extended_pc;
+  logic [DataWidth-1:0] br_orgin_src;
 
   assign alu_flag = alu_result_i[0];
 
   assign extended_pc = {{(DataWidth-AddressWidth){1'b0}},
                         pc_i};
 
+  mux2 br_origin_mux (
+    .sel_i(jalr_i),
+    .in0_i(extended_pc),
+    .in1_i(rs1_data_i),
+    .out_o(br_orgin_src)
+  );
+
   adder pc_imm_adder (
-    .a_i(extended_pc),
+    .a_i(br_orgin_src),  
     .b_i(pc_offset_i),
     .y_o(pc_plus_imm)
   );

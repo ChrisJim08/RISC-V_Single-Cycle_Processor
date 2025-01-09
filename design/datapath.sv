@@ -30,11 +30,11 @@ module datapath #(
   input  logic       regf_wr_en_i,
   input  logic       mem_wr_en_i,
   input  logic       mem_r_en_i,
+  input  logic       alu_src2_sel,
   input  logic [3:0] alu_op_i,
   output logic [6:0] op_code_o,
   output logic [2:0] funct3_o,
-  output logic [6:0] funct7_o,
-  output logic [3:0] alu_ctrl_op_o
+  output logic [6:0] funct7_o
 );
   //Program Counter Wires
   logic                    pc_src_sel;
@@ -43,9 +43,7 @@ module datapath #(
   logic [AddressWidth-1:0] pc_plus4;
   logic [AddressWidth-1:0] next_pc;
   //ALU Wires
-  logic        alu_src2_sel;
-  logic        alu_flag; //rename?
-  logic [31:0] alu_src1;
+  logic        alu_flag;              //rename?
   logic [31:0] alu_src2;
   logic [31:0] alu_result;
   //Regfile Wires
@@ -66,6 +64,7 @@ module datapath #(
   
   assign alu_flag = alu_result[0];
 
+  assign regf_wr_addr = pc_plus4;
 
   instr_mem instr_mem (
     .r_addr_i(pc),
@@ -97,9 +96,9 @@ module datapath #(
   );
 
   branch_unit branch_unit (
-    .jal_i(),
-    .jalr_i(),
-    .branch_i(),
+    .jal_i(jal_i),
+    .jalr_i(jalr_i),
+    .branch_i(branch_i),
     .pc_i(pc),
     .pc_offset_i(imm),
     .alu_result_i(alu_result),
@@ -125,7 +124,7 @@ module datapath #(
   );
 
   alu alu (
-    .src1_i(alu_src1), 
+    .src1_i(regf_rd1_data), 
     .src2_i(alu_src2), 
     .alu_op_i(alu_op_i), 
     .result_o(alu_result)
@@ -146,8 +145,8 @@ module datapath #(
     .rd1_addr_i(regf_rd1_addr), 
     .rd2_addr_i(regf_rd2_addr), 
     .wr_data_i(regf_wr_data), 
-    .rd2_data_o(regf_rd1_data), 
-    .rd1_data_o(regf_rd2_data)
+    .rd1_data_o(regf_rd1_data), 
+    .rd2_data_o(regf_rd2_data)
   );
 
   mux2 regf_wr_src_mux (
