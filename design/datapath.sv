@@ -28,9 +28,10 @@ module datapath #(
   input  logic       jalr_i,
   input  logic       branch_i,
   input  logic       regf_wr_en_i,
+  input  logic       regf_wr_src_i,
   input  logic       mem_wr_en_i,
   input  logic       mem_r_en_i,
-  input  logic       alu_src2_sel,
+  input  logic       alu_src2_sel_i,
   input  logic [3:0] alu_op_i,
   output logic [6:0] op_code_o,
   output logic [2:0] funct3_o,
@@ -64,7 +65,10 @@ module datapath #(
   
   assign alu_flag = alu_result[0];
 
-  assign regf_wr_addr = pc_plus4;
+  assign regf_wr_addr    = TODO;
+  assign regf_wr_src_sel = TODO;
+  assign regf_rd1_addr = TODO;
+  assign regf_rd2_addr = TODO;
 
   instr_mem instr_mem (
     .r_addr_i(pc),
@@ -132,7 +136,7 @@ module datapath #(
   );
 
   mux2 alu_src2_mux (
-    .sel_i(alu_src2_sel), 
+    .sel_i(alu_src2_sel_i), 
     .in0_i(regf_rd2_data), 
     .in1_i(imm), 
     .out_o(alu_src2)
@@ -150,10 +154,12 @@ module datapath #(
     .rd2_data_o(regf_rd2_data)
   );
 
-  mux2 regf_wr_src_mux (
-    .sel_i(regf_wr_src_sel), 
+  mux4 regf_wr_src_mux (
+    .sel_i(regf_wr_src_i), 
     .in0_i(alu_result), 
-    .in1_i(data_mem_r_data), 
+    .in1_i(data_mem_r_data),
+    .in2_i(),
+    .in3_i(),
     .out_o(regf_wr_data)
   );
 

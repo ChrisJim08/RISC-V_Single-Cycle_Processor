@@ -32,7 +32,7 @@ module controller(
   output logic       alu_src_o,
   output logic [3:0] alu_op_o
 );
-///////////////////////IMPLEMENT JAL JALR lUI AUIPC
+///////////////////////IMPLEMENT JAL JALR lUI AUIPC???????????>>>>>>>>
   localparam logic [6:0] R_TYPE      = 7'b0110011;
   localparam logic [6:0] I_IMM_TYPE  = 7'b0010011;
   localparam logic [6:0] I_OR_R_IMM  = 7'b0?10011;
@@ -55,7 +55,7 @@ module controller(
   assign alu_src_o    =    (op_code_i == I_IMM_TYPE)
                         || (op_code_i == LD_TYPE)
                         || (op_code_i == S_TYPE);
-
+/////////////////ONE BLOCK????????????>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   always_comb begin
     unique casez (op_code_i)
       I_OR_R_IMM: begin
