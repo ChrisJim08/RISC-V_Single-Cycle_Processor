@@ -27,6 +27,7 @@ module datapath #(
   input  logic       jal_i,
   input  logic       jalr_i,
   input  logic       branch_i,
+  input  logic       auipc_i,
   input  logic       regf_wr_en_i,
   input  logic       mem_wr_en_i,
   input  logic       mem_r_en_i,
@@ -55,6 +56,7 @@ module datapath #(
   logic [31:0] regf_rs1_data;
   logic [31:0] regf_rs2_data;
 
+  logic [31:0] uimm_type_data;
   logic [31:0] data_mem_r_data;
 
   logic [31:0] imm;
@@ -158,9 +160,16 @@ module datapath #(
     .in1_i(data_mem_r_data),
     .in2_i({{(32-AddressWidth){1'b0}},
             pc_plus4}),
-    .in3_i({{(32-AddressWidth){1'b0}},
-            target_pc}),
+    .in3_i(uimm_type_data),
     .out_o(regf_rd_data)
+  );
+
+  mux2 utype_rd_data_mux (
+    .sel_i(auipc_i), 
+    .in0_i(imm), 
+    .in1_i({{(32-AddressWidth){1'b0}},
+            target_pc}),
+    .out_o(uimm_type_data)
   );
 
 endmodule

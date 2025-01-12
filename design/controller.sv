@@ -26,26 +26,33 @@ module controller(
   output logic       jal_o,
   output logic       jalr_o,
   output logic       branch_o,
+  output logic       auipc_o,
   output logic       regf_wr_en_o,
   output logic       mem_r_en_o,
   output logic       mem_wr_en_o,
   output logic       alu_src_o,
-  output logic [3:0] alu_op_o
+  output logic [3:0] alu_op_o,
+  output logic [1:0] regf_rd_src_o
 );
-///////////////////////IMPLEMENT JAL JALR lUI AUIPC???????????>>>>>>>>
+
   localparam logic [6:0] R_TYPE      = 7'b0110011;
   localparam logic [6:0] I_IMM_TYPE  = 7'b0010011;
-  localparam logic [6:0] I_OR_R_IMM  = 7'b0?10011;
+  localparam logic [6:0] I_OR_R_ALU  = 7'b0?10011;
   localparam logic [6:0] LD_TYPE     = 7'b0000011;
   localparam logic [6:0] S_TYPE      = 7'b0100011;
   localparam logic [6:0] LD_OR_S     = 7'b0?00011;
   localparam logic [6:0] B_TYPE      = 7'b1100011;
   localparam logic [6:0] J_TYPE      = 7'b1101111;
   localparam logic [6:0] I_JMP_TYPE  = 7'b1100111;
+  localparam logic [6:0] JAL_OR_JALR = 7'b110?111;
+  localparam logic [6:0] LUI         = 7'b0110111;
+  localparam logic [6:0] AUIPC       = 7'b0010111;
+  localparam logic [6:0] U_TYPE      = 7'b0?10111;
 
   assign jal_o        =    (op_code_i == J_TYPE);
   assign jalr_o       =    (op_code_i == I_JMP_TYPE);
   assign branch_o     =    (op_code_i == B_TYPE);
+  assign auipc_o      =    (op_code_i == AUIPC);
 
   assign mem_r_en_o   =    (op_code_i == LD_TYPE);
   assign mem_wr_en_o  =    (op_code_i == S_TYPE);
@@ -55,10 +62,11 @@ module controller(
   assign alu_src_o    =    (op_code_i == I_IMM_TYPE)
                         || (op_code_i == LD_TYPE)
                         || (op_code_i == S_TYPE);
-/////////////////ONE BLOCK????????????>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  always_comb begin
+
+  always_comb begin/////////!!!!!!!!??????????????????????////////////////////
     unique casez (op_code_i)
-      I_OR_R_IMM: begin
+      I_OR_R_ALU: begin
+        regf_rd_src_o = 2'b00;
         unique case (funct3_i)
           3'h0: begin
             alu_op_o = fnc7_h20_i ? 4'h1 : 4'h0; //SUB //ADD
@@ -87,6 +95,7 @@ module controller(
         endcase
       end
       LD_OR_S: begin
+        regf_rd_src_o = 2'b01;
         alu_op_o   = 4'h0; //ADD //rs1+imm
       end
       B_TYPE: begin
@@ -113,6 +122,12 @@ module controller(
         
           end
         endcase
+      end
+      JAL_OR_JALR: begin
+        regf_rd_src_o = 2'b10;
+      end
+      U_TYPE: begin
+        regf_rd_src_o = 2'b11;
       end
       default: begin
         
