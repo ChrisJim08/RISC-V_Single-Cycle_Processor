@@ -6,6 +6,7 @@ design/flop_reg.sv
 design/regfile.sv
 design/imm_decoder.sv
 design/mux2.sv
+design/alu.sv
 design/controller.sv
 //design/datapath.sv
 design/instr_mem.sv
