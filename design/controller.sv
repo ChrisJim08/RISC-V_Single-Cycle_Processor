@@ -35,7 +35,6 @@ module controller(
   output logic [1:0] regf_rd_src_o
 );
 
-  localparam logic [6:0] R_TYPE      = 7'b0110011;
   localparam logic [6:0] I_IMM_TYPE  = 7'b0010011;
   localparam logic [6:0] I_OR_R_ALU  = 7'b0?10011;
   localparam logic [6:0] LD_TYPE     = 7'b0000011;
@@ -45,7 +44,6 @@ module controller(
   localparam logic [6:0] J_TYPE      = 7'b1101111;
   localparam logic [6:0] I_JMP_TYPE  = 7'b1100111;
   localparam logic [6:0] JAL_OR_JALR = 7'b110?111;
-  localparam logic [6:0] LUI         = 7'b0110111;
   localparam logic [6:0] AUIPC       = 7'b0010111;
   localparam logic [6:0] U_TYPE      = 7'b0?10111;
 
@@ -63,7 +61,9 @@ module controller(
                         || (op_code_i == LD_TYPE)
                         || (op_code_i == S_TYPE);
 
-  always_comb begin/////////!!!!!!!!??????????????????????////////////////////
+  always_comb begin
+    alu_op_o      = 4'h0;
+    regf_rd_src_o = 2'b00;
     unique casez (op_code_i)
       I_OR_R_ALU: begin
         regf_rd_src_o = 2'b00;

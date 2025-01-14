@@ -25,12 +25,6 @@ module alu_controller (
   output logic [3:0] alu_op_o
 );
 
-  assign alu_op_o[0] = 1;
 
-  assign alu_op_o[1] = 1;
-  
-  assign alu_op_o[2] = 1;
-
-  assign alu_op_o[3] = 1;
 
 endmodule

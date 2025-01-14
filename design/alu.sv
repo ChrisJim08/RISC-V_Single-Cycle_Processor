@@ -46,7 +46,6 @@ always_comb begin
     4'b1101: result_o = 1;
     4'b1110: result_o = 1;
     4'b1111: result_o = 1;
-    default: result_o = '0;
   endcase
 end
 
