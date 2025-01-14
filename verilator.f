@@ -18,12 +18,11 @@ design/data_mem.sv
 design/risc_v.sv
 //Header Files
 risc_v.svh
-definitions.svh
 // TOP Module
 --top risc_v
 ////////////////////////////////////////////////////////
-//verilator --binary  -f verilator.f
-//verilator --lint-only -f verilator.f
+// verilator --binary  -f verilator.f
+// verilator --lint-only -f verilator.f
 ////////////////////////////////////////////////////////
 // verilator lint_off ERRORCODE
 // error = line;

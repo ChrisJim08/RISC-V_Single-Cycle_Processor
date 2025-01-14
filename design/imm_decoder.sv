@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "definitions.svh"
+`include "risc_v.svh"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Self-employed
 // Engineer: Chris Jimenez
@@ -29,34 +29,34 @@ module imm_decoder (
 
   always_comb begin
     unique casez (op_code)
-      `OPCODE_I_TYPE: begin
+      I_IMM_OR_LD: begin
         imm_o = {{20{instr_i[31]}}, 
                   instr_i[31:20]};
       end
-      `OPCODE_I_JALR_TYPE: begin
+      I_JMP_TYPE: begin
         imm_o = {{20{instr_i[31]}}, 
                  instr_i[31:20]};
       end
-      `OPCODE_S_TYPE: begin
+      S_TYPE: begin
         imm_o = {{20{instr_i[31]}}, 
                  instr_i[31:25], 
                  instr_i[11:7]};
       end
-      `OPCODE_B_TYPE: begin
+      B_TYPE: begin
         imm_o = {{20{instr_i[31]}}, 
                  instr_i[7], 
                  instr_i[30:25], 
                  instr_i[11:8], 
                  1'b0};
       end
-      `OPCODE_J_TYPE: begin
+      J_TYPE: begin
         imm_o = {{12{instr_i[31]}}, 
                  instr_i[19:12], 
                  instr_i[20], 
                  instr_i[30:21], 
                  1'b0};
       end
-      `OPCODE_U_TYPE: begin      
+      U_TYPE: begin      
         imm_o = {instr_i[31:12], 
                  12'b0};
       end
