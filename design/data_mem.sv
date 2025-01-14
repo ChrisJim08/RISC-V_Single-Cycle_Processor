@@ -34,9 +34,9 @@ module data_mem #(
   logic [31:0] mem [(2**AddressWidth)-1:0];
 
   always_comb begin
-    r_data_o = '0;                        ///LOOK INTO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    r_data_o = '0;                    
     if(r_en_i) begin
-      case (funct3_i)
+      unique case (funct3_i)
         3'b000: begin //LB
           r_data_o = {{24{mem[addr_i][7]}}, 
                       mem[addr_i][7:0]};
@@ -57,7 +57,7 @@ module data_mem #(
                       mem[addr_i][15:0]};
         end
         default: begin
-          r_data_o = mem[addr_i];
+
         end
       endcase
     end
@@ -76,7 +76,7 @@ module data_mem #(
             mem[addr_i] <= wr_data_i;
         end
         default: begin
-                                              //LOOK INTO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          
         end
       endcase
     end

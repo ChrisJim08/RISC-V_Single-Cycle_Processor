@@ -34,9 +34,9 @@ module datapath #(
   input  logic       alu_src2_sel_i,
   input  logic [3:0] alu_op_i,
   input  logic [1:0] regf_rd_src_i,
+  output logic       funct7_h20_o,
   output logic [6:0] op_code_o,
-  output logic [2:0] funct3_o,
-  output logic [6:0] funct7_o
+  output logic [2:0] funct3_o
 );
   //Program Counter Wires
   logic                    pc_src_sel;
@@ -64,7 +64,10 @@ module datapath #(
   
   assign alu_flag = alu_result[0];
 
+  assign op_code_o     = instr[6:0];
   assign funct3_o      = instr[14:12];
+  assign funct7_h20_o  = instr[30];
+
   assign regf_rd_addr  = instr[11:7];
   assign regf_rs1_addr = instr[19:15];
   assign regf_rs2_addr = instr[24:20];
