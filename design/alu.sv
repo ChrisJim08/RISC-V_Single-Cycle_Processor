@@ -30,22 +30,22 @@ module alu #(
 
 always_comb begin
   unique case (alu_op_i)
-    4'b0000: result_o = 1;
-    4'b0001: result_o = 1;
-    4'b0010: result_o = 1;
-    4'b0011: result_o = 1;
-    4'b0100: result_o = 1;
-    4'b0101: result_o = 1;
-    4'b0110: result_o = 1;
-    4'b0111: result_o = 1;
-    4'b1000: result_o = 1;
-    4'b1001: result_o = 1;
-    4'b1010: result_o = 1;
-    4'b1011: result_o = 1;
-    4'b1100: result_o = 1;
-    4'b1101: result_o = 1;
-    4'b1110: result_o = 1;
-    4'b1111: result_o = 1;
+    4'h0: result_o = src1_i             +   src2_i;
+    4'h1: result_o = src1_i             -   src2_i;
+    4'h2: result_o = src1_i             ^   src2_i;
+    4'h3: result_o = src1_i             |   src2_i;
+    4'h4: result_o = src1_i             &   src2_i;
+    4'h5: result_o = src1_i             <<  src2_i;
+    4'h6: result_o = src1_i             >>  src2_i;
+    4'h7: result_o = $signed(src1_i)    >>> src2_i;
+    4'h8: result_o = ($signed(src1_i)   <   $signed(src2_i))   ? 1 : 0;
+    4'h9: result_o = ($unsigned(src1_i) <   $unsigned(src2_i)) ? 1 : 0;
+    4'hA: result_o = (src1_i            ==  src2_i)            ? 1 : 0;
+    4'hB: result_o = (src1_i            !=  src2_i)            ? 1 : 0;
+    4'hC: result_o = ($signed(src1_i)   <   $signed(src2_i))   ? 1 : 0;
+    4'hD: result_o = ($signed(src1_i)   >=  $signed(src2_i))   ? 1 : 0;
+    4'hE: result_o = ($unsigned(src1_i) <   $unsigned(src2_i)) ? 1 : 0;
+    4'hF: result_o = ($unsigned(src1_i) >=  $unsigned(src2_i)) ? 1 : 0;
   endcase
 end
 
