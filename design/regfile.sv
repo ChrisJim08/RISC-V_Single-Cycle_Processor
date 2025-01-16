@@ -47,10 +47,13 @@ module regfile #(
       register_file[rd_addr_i] <= rd_data_i;
     end
   end
-
-  assign register_file[0] = '0;
   
   assign rs1_data_o = register_file[rs1_addr_i];
   assign rs2_data_o = register_file[rs2_addr_i];
+
+  initial begin
+    register_file[0] = '0;
+  end
+
 
 endmodule

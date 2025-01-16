@@ -1,0 +1,31 @@
+# Read the Verilog or SystemVerilog file
+read -sv design/adder.sv
+read -sv design/flop_reg.sv
+read -sv design/regfile.sv
+read -sv design/imm_decoder.sv
+read -sv design/mux2.sv
+read -sv design/alu.sv
+read -sv design/mux4.sv
+read -sv design/branch_unit.sv
+read -sv design/alu_controller.sv
+read -sv design/controller.sv
+read -sv design/datapath.sv
+read -sv design/instr_mem.sv
+read -sv design/data_mem.sv
+read -sv risc_v.svh
+read -sv design/risc_v.sv
+
+# If your design has hierarchy, check it
+hierarchy -check -top risc_v
+
+# Process procedural blocks and optimize the design
+proc; opt;
+
+# Perform synthesis (optional but common for netlist generation)
+synth -top risc_v
+
+# Generate a netlist in a format of your choice (e.g., Verilog)
+write_verilog riscv_netlist.v
+
+# Optionally, generate a schematic in SVG format
+show -format svg -prefix riscv_schematic

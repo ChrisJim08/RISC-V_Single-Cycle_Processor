@@ -8,7 +8,7 @@ design/regfile.sv
 design/imm_decoder.sv
 design/mux2.sv
 design/alu.sv
-design/mux4
+design/mux4.sv
 design/branch_unit.sv
 design/alu_controller.sv
 design/controller.sv
@@ -28,8 +28,12 @@ risc_v.svh
 // error = line;
 // verilator lint_on  ERRORCODE
 ////////////////////////////////////////////////////////
+// Folder Name
+--Mdir v
 // dump as fst
 --trace-fst
+// trace structs
+--trace-structs
 // SystemVerilog assertions
 --assert
 // Strict warnings
@@ -40,8 +44,6 @@ risc_v.svh
 -Wno-fatal
 // Fully parallelized
 -j 0
-// dump structs as human-readable format
---trace-structs
 // remove extra TOP module
 //--main-top-name "-"
 // all explicit Xs are replaced by a constant value determined at runtime

@@ -33,6 +33,7 @@ module alu_controller (
                      || (op_code_i == I_IMM_TYPE);
 
   always_comb begin
+    alu_op_o = '0;
     unique casez (op_code_i)
       I_OR_R_ALU: begin
         unique case (funct3_i)
@@ -86,7 +87,7 @@ module alu_controller (
             alu_op_o = 4'hF; //BGEU
           end
           default: begin
-        
+            
           end
         endcase
       end
