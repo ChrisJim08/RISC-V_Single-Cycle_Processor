@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "../risc_v.svh"
+`include "risc_v.svh"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Self-employed
 // Engineer: Chris Jimenez

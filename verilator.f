@@ -5,17 +5,16 @@ lint.vlt
 design/adder.sv
 design/alu.sv
 design/branch_unit.sv
-design/controller.sv
-design/datapath.sv
+design/control_flow_unit.sv
+design/control_unit.sv
 design/flop_reg.sv
-design/flow_control.sv
-design/imm_extender.sv
-design/ld_extender.sv
+design/imm_extension_unit.sv
+design/ld_extension_unit.sv
 design/mem.sv
 design/mux2.sv
 design/mux4.sv
 design/regfile.sv
-design/rs2_extender.sv
+//design/rs2_extension_unit.sv
 design/risc_v.sv
 //Header Files
 risc_v.svh
