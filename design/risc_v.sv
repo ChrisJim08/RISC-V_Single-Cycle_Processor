@@ -32,12 +32,11 @@ module risc_v #(
   logic [3:0] alu_op;
   logic [6:0] op_code;
   logic [1:0] regf_rd_src;
-  logic       funct7_h20;
   logic       alu_src2_sel;
   logic       jal, jalr, branch, auipc;
   logic       regf_wr_en, mem_wr_en;
 
-  controller controller (
+  control_unit control_unit (
     .op_code_i(op_code),
     .jal_o(jal),
     .jalr_o(jalr),
@@ -45,33 +44,150 @@ module risc_v #(
     .auipc_o(auipc),
     .regf_wr_en_o(regf_wr_en),
     .mem_wr_en_o(mem_wr_en),
-    .regf_rd_src_o(regf_rd_src)
-  );
-  alu_controller alu_controller (
-    .fnc7_h20_i(funct7_h20),
+    .regf_rd_src_o(regf_rd_src),
+
+    .fnc7_h20_i(instr[30]),
     .funct3_i(funct3),
-    .op_code_i(op_code),
     .alu_src_o(alu_src2_sel),
     .alu_op_o(alu_op)
   );
 
-  datapath #(
-    .AddressWidth(AddressWidth)
-  ) datapath (
-    .clk_i(clk_i),
+  //Program Counter Wires
+  logic                 pc_src_sel;
+  logic [DataWidth-1:0] target_pc;
+  logic [DataWidth-1:0] pc;
+  logic [DataWidth-1:0] pc_plus4;
+  logic [DataWidth-1:0] next_pc;
+  //ALU Wires
+  logic        alu_flag;
+  logic [31:0] alu_src2;
+  logic [31:0] alu_result;
+  //Regfile Wires
+  logic [31:0] regf_rd_data;
+  logic [31:0] regf_rs1_data;
+  logic [31:0] regf_rs2_data;
+
+  logic [31:0] uimm_type_data;
+  logic [31:0] data_mem_r_data;
+
+  logic [31:0] imm;
+  logic [31:0] instr;
+  
+  assign alu_flag = alu_result[0];
+
+  // Instruction slicings
+  logic [6:0]   op_code_o     = instr[6:0];
+  logic [14:12] funct3_o      = instr[14:12];
+  logic         funct7_h20_o  = instr[30];
+  logic [4:0]   regf_rd_addr  = instr[11:7];
+  logic [4:0]   regf_rs1_addr = instr[19:15];
+  logic [4:0]   regf_rs2_addr = instr[24:20];
+
+  flop_reg #(
+    .DataWidth(DataWidth)
+  ) pc_reg (
     .rst_i(rst_i),
-    .jal_i(jal),
-    .jalr_i(jalr),
-    .branch_i(branch),
-    .auipc_i(auipc),
-    .regf_wr_en_i(regf_wr_en),
-    .mem_wr_en_i(mem_wr_en),
-    .alu_src2_sel_i(alu_src2_sel),
-    .alu_op_i(alu_op),
-    .regf_rd_src_i(regf_rd_src),
-    .funct7_h20_o(funct7_h20),
-    .op_code_o(op_code),
-    .funct3_o(funct3)
+    .clk_i(clk_i),
+    .d_i(next_pc),
+    .q_o(pc)
+  );
+
+  adder #(
+    .DataWidth(DataWidth)
+  ) pc_adder (
+    .a_i(pc),
+    .b_i({{(DataWidth-3){1'b0}},
+          3'd4}), 
+    .y_o(pc_plus4)
+  );
+
+  mem #(
+    .AddressWidth(AddressWidth),
+    .DataWidth(DataWidth)
+  ) imem (
+    .clk_i(clk_i),
+    .wr_en_i(mem_wr_en),
+    .addr_i(pc[AddressWidth+1:2]),
+    .wr_data_i(regf_rs2_data),
+    .r_data_o(instr)
+  );
+  
+  mem #(
+    .AddressWidth(AddressWidth),
+    .DataWidth(DataWidth)
+  ) dmem (
+    .clk_i(clk_i),
+    .wr_en_i(mem_wr_en),
+    .addr_i(alu_result[AddressWidth-1:0]),
+    .wr_data_i(regf_rs2_data),
+    .r_data_o(data_mem_r_data)
+  );
+  
+  regfile regfile (
+    .clk_i(clk_i), 
+    .rst_i(rst_i), 
+    .wr_en_i(regf_wr_en), 
+    .rd_addr_i(regf_rd_addr), 
+    .rs1_addr_i(regf_rs1_addr), 
+    .rs2_addr_i(regf_rs2_addr), 
+    .rd_data_i(regf_rd_data), 
+    .rs1_data_o(regf_rs1_data), 
+    .rs2_data_o(regf_rs2_data)
+  );
+
+  imm_extender imm_extender (
+    .instr_i(instr), 
+    .imm_o(imm)
+  );
+
+  mux2 alu_src2_mux (
+    .sel_i(alu_src2_sel), 
+    .in0_i(regf_rs2_data), 
+    .in1_i(imm), 
+    .out_o(alu_src2)
+  );
+
+  alu alu (
+    .src1_i(regf_rs1_data), 
+    .src2_i(alu_src2), 
+    .alu_op_i(alu_op), 
+    .result_o(alu_result)
+  );
+  
+  // branch_unit branch_unit (
+  //   .jal_i(jal_i),
+  //   .jalr_i(jalr_i),
+  //   .branch_i(branch_i),
+  //   .pc_i(pc),
+  //   .addr_offset_i(imm),
+  //   .rs1_data_i(regf_rs1_data),
+  //   .alu_flag_i(alu_flag),
+  //   .pc_src_sel_o(pc_src_sel),
+  //   .pc_target_o(target_pc)
+  // );
+
+  // mux2 #(
+  //   .DataWidth(AddressWidth)
+  // ) pc_mux (
+  //   .sel_i(pc_src_sel),
+  //   .in0_i(pc_plus4),
+  //   .in1_i(target_pc),
+  //   .out_o(next_pc)
+  // );
+
+  mux4 regf_wr_data_mux (
+    .sel_i(regf_rd_src), 
+    .in0_i(alu_result), 
+    .in1_i(data_mem_r_data),
+    .in2_i(pc_plus4),
+    .in3_i(uimm_type_data),
+    .out_o(regf_rd_data)
+  );
+  mux2 utype_rd_data_mux (
+    .sel_i(auipc), 
+    .in0_i(imm), 
+    .in1_i(target_pc),
+    .out_o(uimm_type_data)
   );
 
 endmodule

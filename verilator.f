@@ -3,18 +3,19 @@
 lint.vlt
 // Design Files
 design/adder.sv
-design/flop_reg.sv
-design/regfile.sv
-design/imm_decoder.sv
-design/mux2.sv
 design/alu.sv
-design/mux4.sv
 design/branch_unit.sv
-design/alu_controller.sv
 design/controller.sv
 design/datapath.sv
-design/instr_mem.sv
-design/data_mem.sv
+design/flop_reg.sv
+design/flow_control.sv
+design/imm_extender.sv
+design/ld_extender.sv
+design/mem.sv
+design/mux2.sv
+design/mux4.sv
+design/regfile.sv
+design/rs2_extender.sv
 design/risc_v.sv
 //Header Files
 risc_v.svh
