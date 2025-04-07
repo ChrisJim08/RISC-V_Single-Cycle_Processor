@@ -16,10 +16,12 @@ design/mux4.sv
 design/regfile.sv
 //design/rs2_extension_unit.sv
 design/risc_v.sv
-//Header Files
-risc_v.svh
+// Header Files
+design/risc_v.svh
+// Test Files
+verif/tb_risc_v.sv
 // TOP Module
---top risc_v
+--top tb_risc_v
 ////////////////////////////////////////////////////////
 // verilator --binary  -f verilator.f
 // verilator --lint-only -f verilator.f
@@ -31,7 +33,8 @@ risc_v.svh
 // Folder Name
 --Mdir v
 // dump as fst
---trace-fst
+//--trace-fst
+--trace
 // trace structs
 --trace-structs
 // SystemVerilog assertions

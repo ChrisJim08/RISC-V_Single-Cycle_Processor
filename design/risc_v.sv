@@ -27,6 +27,10 @@ module risc_v #(
   input  logic rst_i
 );
 
+  initial begin
+      // Load program into memory (adjust path if needed)
+    $readmemh("verif/test.mem", imem.mem);
+  end
   // Internal signals
   logic [3:0] alu_op;
   logic [1:0] regf_rd_src;
@@ -142,27 +146,6 @@ module risc_v #(
     .alu_op_i(alu_op), 
     .result_o(alu_result)
   );
-  
-  // branch_unit branch_unit (
-  //   .jal_i(jal_i),
-  //   .jalr_i(jalr_i),
-  //   .branch_i(branch_i),
-  //   .pc_i(pc),
-  //   .addr_offset_i(imm),
-  //   .rs1_data_i(regf_rs1_data),
-  //   .alu_flag_i(alu_flag),
-  //   .pc_src_sel_o(pc_src_sel),
-  //   .pc_target_o(target_pc)
-  // );
-
-  // mux2 #(
-  //   .DataWidth(AddressWidth)
-  // ) pc_mux (
-  //   .sel_i(pc_src_sel),
-  //   .in0_i(pc_plus4),
-  //   .in1_i(target_pc),
-  //   .out_o(next_pc)
-  // );
 
   control_flow_unit #(
     .DataWidth(DataWidth)
