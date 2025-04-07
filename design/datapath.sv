@@ -20,7 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module datapath #(
-  parameter AddressWidth = 10
+  parameter AddressWidth = 10,
+  parameter DataWidth    = 32
 )(
   input  logic       clk_i,
   input  logic       rst_i,
@@ -39,11 +40,11 @@ module datapath #(
   output logic [2:0] funct3_o
 );
   //Program Counter Wires
-  logic                    pc_src_sel;
-  logic [AddressWidth-1:0] target_pc;
-  logic [AddressWidth-1:0] pc;
-  logic [AddressWidth-1:0] pc_plus4;
-  logic [AddressWidth-1:0] next_pc;
+  logic                 pc_src_sel;
+  logic [DataWidth-1:0] target_pc;
+  logic [DataWidth-1:0] pc;
+  logic [DataWidth-1:0] pc_plus4;
+  logic [DataWidth-1:0] next_pc;
   //ALU Wires
   logic        alu_flag;
   logic [31:0] alu_src2;
@@ -72,28 +73,8 @@ module datapath #(
   assign regf_rs1_addr = instr[19:15];
   assign regf_rs2_addr = instr[24:20];
 
-  instr_mem instr_mem (
-    .r_addr_i(pc),
-    .r_data_o(instr)
-  );
-  
-  imm_decoder imm_decoder (
-    .instr_i(instr), 
-    .imm_o(imm)
-  );
-
-  data_mem data_mem (
-    .clk_i(clk_i),
-    .r_en_i(mem_r_en_i),
-    .wr_en_i(mem_wr_en_i),
-    .addr_i(alu_result[AddressWidth-1:0]),
-    .wr_data_i(regf_rs2_data),
-    .funct3_i(funct3_o),
-    .r_data_o(data_mem_r_data)
-  );
-
   flop_reg #(
-    .DataWidth(AddressWidth)
+    .DataWidth(DataWidth)
   ) pc_reg (
     .rst_i(rst_i),
     .clk_i(clk_i),
@@ -101,50 +82,37 @@ module datapath #(
     .q_o(pc)
   );
 
-  branch_unit branch_unit (
-    .jal_i(jal_i),
-    .jalr_i(jalr_i),
-    .branch_i(branch_i),
-    .pc_i(pc),
-    .addr_offset_i(imm),
-    .rs1_data_i(regf_rs1_data),
-    .alu_flag_i(alu_flag),
-    .pc_src_sel_o(pc_src_sel),
-    .pc_target_o(target_pc)
-  );
-
-  mux2 #(
-    .DataWidth(AddressWidth)
-  ) pc_mux (
-    .sel_i(pc_src_sel),
-    .in0_i(pc_plus4),
-    .in1_i(target_pc),
-    .out_o(next_pc)
-  );
-
   adder #(
-    .DataWidth(AddressWidth)
+    .DataWidth(DataWidth)
   ) pc_adder (
     .a_i(pc),
-    .b_i({{(AddressWidth-3){1'b0}},
+    .b_i({{(DataWidth-3){1'b0}},
           3'd4}), 
     .y_o(pc_plus4)
   );
 
-  alu alu (
-    .src1_i(regf_rs1_data), 
-    .src2_i(alu_src2), 
-    .alu_op_i(alu_op_i), 
-    .result_o(alu_result)
+  mem #(
+    .AddressWidth(AddressWidth),
+    .DataWidth(DataWidth)
+  ) imem (
+    .clk_i(clk_i),
+    .wr_en_i(mem_wr_en_i),
+    .addr_i(pc[AddressWidth+1:2]),
+    .wr_data_i(regf_rs2_data),
+    .r_data_o(instr)
   );
-
-  mux2 alu_src2_mux (
-    .sel_i(alu_src2_sel_i), 
-    .in0_i(regf_rs2_data), 
-    .in1_i(imm), 
-    .out_o(alu_src2)
+  
+  mem #(
+    .AddressWidth(AddressWidth),
+    .DataWidth(DataWidth)
+  ) dmem (
+    .clk_i(clk_i),
+    .wr_en_i(mem_wr_en_i),
+    .addr_i(alu_result[AddressWidth-1:0]),
+    .wr_data_i(regf_rs2_data),
+    .r_data_o(data_mem_r_data)
   );
-
+  
   regfile regfile (
     .clk_i(clk_i), 
     .rst_i(rst_i), 
@@ -157,21 +125,58 @@ module datapath #(
     .rs2_data_o(regf_rs2_data)
   );
 
-  mux4 regf_rd_src_mux (
+  imm_extender imm_extender (
+    .instr_i(instr), 
+    .imm_o(imm)
+  );
+
+  mux2 alu_src2_mux (
+    .sel_i(alu_src2_sel_i), 
+    .in0_i(regf_rs2_data), 
+    .in1_i(imm), 
+    .out_o(alu_src2)
+  );
+
+  alu alu (
+    .src1_i(regf_rs1_data), 
+    .src2_i(alu_src2), 
+    .alu_op_i(alu_op_i), 
+    .result_o(alu_result)
+  );
+  
+  // branch_unit branch_unit (
+  //   .jal_i(jal_i),
+  //   .jalr_i(jalr_i),
+  //   .branch_i(branch_i),
+  //   .pc_i(pc),
+  //   .addr_offset_i(imm),
+  //   .rs1_data_i(regf_rs1_data),
+  //   .alu_flag_i(alu_flag),
+  //   .pc_src_sel_o(pc_src_sel),
+  //   .pc_target_o(target_pc)
+  // );
+
+  // mux2 #(
+  //   .DataWidth(AddressWidth)
+  // ) pc_mux (
+  //   .sel_i(pc_src_sel),
+  //   .in0_i(pc_plus4),
+  //   .in1_i(target_pc),
+  //   .out_o(next_pc)
+  // );
+
+  mux4 regf_wr_data_mux (
     .sel_i(regf_rd_src_i), 
     .in0_i(alu_result), 
     .in1_i(data_mem_r_data),
-    .in2_i({{(32-AddressWidth){1'b0}},
-            pc_plus4}),
+    .in2_i(pc_plus4),
     .in3_i(uimm_type_data),
     .out_o(regf_rd_data)
   );
-
   mux2 utype_rd_data_mux (
     .sel_i(auipc_i), 
     .in0_i(imm), 
-    .in1_i({{(32-AddressWidth){1'b0}},
-            target_pc}),
+    .in1_i(target_pc),
     .out_o(uimm_type_data)
   );
 

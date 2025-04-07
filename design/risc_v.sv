@@ -20,7 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module risc_v #(
-  parameter AddressWidth = 10
+  parameter AddressWidth = 10,
+  parameter DataWidth = 32
 )(
   input  logic clk_i,
   input  logic rst_i
@@ -34,7 +35,7 @@ module risc_v #(
   logic       funct7_h20;
   logic       alu_src2_sel;
   logic       jal, jalr, branch, auipc;
-  logic       regf_wr_en, mem_r_en, mem_wr_en;
+  logic       regf_wr_en, mem_wr_en;
 
   controller controller (
     .op_code_i(op_code),
@@ -43,11 +44,9 @@ module risc_v #(
     .branch_o(branch),
     .auipc_o(auipc),
     .regf_wr_en_o(regf_wr_en),
-    .mem_r_en_o(mem_r_en),
     .mem_wr_en_o(mem_wr_en),
     .regf_rd_src_o(regf_rd_src)
   );
-
   alu_controller alu_controller (
     .fnc7_h20_i(funct7_h20),
     .funct3_i(funct3),
@@ -67,7 +66,6 @@ module risc_v #(
     .auipc_i(auipc),
     .regf_wr_en_i(regf_wr_en),
     .mem_wr_en_i(mem_wr_en),
-    .mem_r_en_i(mem_r_en),
     .alu_src2_sel_i(alu_src2_sel),
     .alu_op_i(alu_op),
     .regf_rd_src_i(regf_rd_src),

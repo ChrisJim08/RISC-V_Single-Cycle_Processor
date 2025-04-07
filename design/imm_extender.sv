@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "risc_v.svh"
+`include "../risc_v.svh"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Self-employed
 // Engineer: Chris Jimenez
@@ -20,7 +20,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module imm_decoder (
+module imm_extender (
   input  logic [31:0] instr_i,
   output logic [31:0] imm_o
 );
