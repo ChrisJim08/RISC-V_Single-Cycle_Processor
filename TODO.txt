@@ -1,3 +1,0 @@
-See if for instrs like sll imm where imm = imm[0:4] is ok as is
-look into always_comb and how to not infer latches
-If i use default: in case do i need to put the case into which that falls into

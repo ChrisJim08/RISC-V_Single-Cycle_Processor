@@ -1,7 +1,0 @@
-# Simulation and build files
-*.vcd
-*.log
-*.out
-*.tcl
-*.f
-sim_build/

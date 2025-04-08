@@ -1,55 +1,48 @@
-////////////////////////////////////////////////////////
-// Config Files
+// Include Paths
++incdir+src/utils
+
+// Lint Directives
 lint.vlt
-// Design Files
-design/adder.sv
-design/alu.sv
-design/branch_unit.sv
-design/control_flow_unit.sv
-design/control_unit.sv
-design/flop_reg.sv
-design/imm_extension_unit.sv
-design/ld_extension_unit.sv
-design/mem.sv
-design/mux2.sv
-design/mux4.sv
-design/regfile.sv
-//design/rs2_extension_unit.sv
-design/risc_v.sv
-// Header Files
-design/risc_v.svh
-// Test Files
-verif/tb_risc_v.sv
-// TOP Module
+
+// RTL Files
+src/risc_v.sv
+
+src/datapath/alu.sv
+src/datapath/imm_extension_unit.sv
+src/datapath/ld_extension_unit.sv
+src/datapath/mem.sv
+src/datapath/regfile.sv
+
+src/control/control_unit.sv
+src/control/control_flow_unit.sv
+
+src/utils/adder.sv
+src/utils/flop_reg.sv
+src/utils/mux2.sv
+src/utils/mux4.sv
+
+// Testbench
+sim/tb_risc_v.sv
+
+// Top Module
 --top tb_risc_v
-////////////////////////////////////////////////////////
-// verilator --binary  -f verilator.f
-// verilator --lint-only -f verilator.f
-////////////////////////////////////////////////////////
-// verilator lint_off ERRORCODE
-// error = line;
-// verilator lint_on  ERRORCODE
-////////////////////////////////////////////////////////
-// Folder Name
---Mdir v
-// dump as fst
-//--trace-fst
+
+// Build Output
+--Mdir build
+
+// Tracing
 --trace
-// trace structs
 --trace-structs
-// SystemVerilog assertions
---assert
-// Strict warnings
--Wall
-// enable timing constructs
+
+// Behavior
 --timing
-// Don't exit on warnings
--Wno-fatal
-// Fully parallelized
--j 0
-// remove extra TOP module
-//--main-top-name "-"
-// all explicit Xs are replaced by a constant value determined at runtime
+--assert
 --x-assign unique
-// all variables are randomly initialized (if +verilator+rand+reset+2)
 --x-initial unique
+
+// Warnings & Lint
+-Wall
+-Wno-fatal
+
+// Performance
+-j 0
