@@ -22,10 +22,9 @@ src/utils/mux2.sv
 src/utils/mux4.sv
 
 // Testbench
-sim/tb_risc_v.sv
 
 // Top Module
---top tb_risc_v
+--top risc_v
 
 // Build Output
 --Mdir build

@@ -9,7 +9,12 @@ from pathlib import Path
 
 import logging
 logger = logging.getLogger(__name__)
+import logging
 
+logging.basicConfig(
+    level=logging.DEBUG,  # Change to INFO or WARNING to reduce verbosity
+    format='[%(levelname)s] %(message)s'
+)
 class Rars:
     """Interface into rars execution.
     """
@@ -40,16 +45,16 @@ class Rars:
         asm_file_path = Path(asm_file_path)
 
         if not asm_file_path.is_file():
-            logger.warning('ASM file "{self.asm_file_path}" does not exist')
+            logger.warning(f'ASM file "{asm_file_path}" does not exist')
             return False
 
         return True
 
     def check_assemble(self, asm_file_path):
-        """Assembles RISC-V file.
+        """Assembles RARS file.
 
         Args:
-            asm_file_path (str) : String or Pathlike to RISC-V file
+            asm_file_path (str) : String or Pathlike to RARS file
 
         Returns:
             list of errors (empty if no errors)
@@ -109,7 +114,7 @@ class Rars:
 
 
     def run_sim(self, asm_file_path, output_trace, timeout=30):
-        '''Simulates given RISC-V file.
+        '''Simulates given RARS file.
 
         Args:
             asm_file (str) : String or pathlike of asm_file

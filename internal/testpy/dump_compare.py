@@ -28,7 +28,7 @@ def main():
         print('Note: max_mismatches will default to 2 if not set')
         return 1
 
-    student_file_path = sys.argv[1]
+    verilator_file_path = sys.argv[1]
     rars_file_path = sys.argv[2]
     if len(sys.argv) == 4:
         try:
@@ -40,57 +40,125 @@ def main():
     print('Maximum Number of Mismatches Accepted: ' + str(max_mismatches))
     print('')
 
-    dc = DumpCompare(student_file_path, rars_file_path, max_mismatches)
+    dc = DumpCompare(verilator_file_path, rars_file_path, max_mismatches)
     dc.compare()
 
     dc.print_cpi()
 
-class StudentReader:
+class StudentReader: ############################################################################################################################
+    '''
+    Wraps a rars dump file object so that we can separate the skipping logic from the comparison logic
+    '''
+
     def __init__(self, path):
         self.path = path
         self.f = open(path, "r")
-        self.buff = []
         self.cyc_num = 0
+
+        # Trackers for state
+        self.current_pc = None
+        self.current_instr = None
+        self.in_reg_write = False
+        self.in_mem_write = False
+        self.reg_write_addr = None
+        self.mem_write_addr = None
+        
+    def read_next(self):
+        """
+        Reads the next instruction from the verilator file.
+
+        This will return either an instruction and a memory access, an
+        intruction and a register access, or an instruction, reg access, and
+        an overflow. Each return type will be a match object.
+
+        """
+
+        while True:
+            line = self.f.readline()
+            if not line:
+                print("[VerilatorReader] Reached EOF")
+                return None, None, None
+
+            line = line.strip()
+
+            if line.startswith('#'):
+                self.cyc_num = int(line[1:])
+                print(f"[VerilatorReader] New cycle #{self.cyc_num}")
+                continue
+
+            if line.startswith('b') and line.endswith(' .'):
+                pc_bin = line.split()[0][1:]
+                self.current_pc = int(pc_bin, 2)
+                print(f"[VerilatorReader] Found PC: 0x{self.current_pc:X}")
+
+            elif line.startswith('b') and line.endswith(' :'):
+                instr_bin = line.split()[0][1:]
+                self.current_instr = int(instr_bin, 2)
+                print(f"[VerilatorReader] Found instruction: 0x{self.current_instr:X}")
+
+            elif line.startswith('b') and line.endswith(' *'):
+                self.in_reg_write = True
+                print("[VerilatorReader] Register write enabled")
+
+            elif line.startswith('b') and line.endswith(' +'):
+                self.in_mem_write = True
+                print("[VerilatorReader] Memory write enabled")
+
+            elif self.in_reg_write and line.startswith('b') and line.endswith(' ?'):
+                self.reg_write_addr = int(line.split()[0][1:], 2)
+                print(f"[VerilatorReader] Register write address: x{self.reg_write_addr:02X}")
+
+            elif self.in_reg_write and line.startswith('b') and line.endswith(' 4'):
+                wr_data = int(line.split()[0][1:], 2)
+                print(f"[VerilatorReader] Register write data: 0x{wr_data:X}")
+                self.in_reg_write = False
+                return (self.cyc_num,
+                        DummyMatch(f"PC=0x{self.current_pc:X}"),
+                        DummyMatch(f"Register Write to Reg: 0x{self.reg_write_addr:02X} Val: 0x{wr_data:X}"))
+
+            elif self.in_mem_write and line.startswith('b') and line.endswith(' 5'):
+                self.mem_write_addr = int(line.split()[0][1:], 2)
+                print(f"[VerilatorReader] Memory write address: 0x{self.mem_write_addr:X}")
+
+            elif self.in_mem_write and line.startswith('b') and line.endswith(' 6'):
+                wr_data = int(line.split()[0][1:], 2)
+                print(f"[VerilatorReader] Memory write data: 0x{wr_data:X}")
+                self.in_mem_write = False
+                return (self.cyc_num,
+                        DummyMatch(f"PC=0x{self.current_pc:X}"),
+                        DummyMatch(f"Memory Write to Addr: 0x{self.mem_write_addr:X} Val: 0x{wr_data:X}"))
+
 
     def close(self):
         self.f.close()
 
-    def read_next(self):
-        while True:
-            while len(self.buff) < 3:
-                line = self.f.readline()
-                if not line:
-                    return None, None, None
-                self.buff.append(line)
+class DummyMatch:
+    """Used to mimic re.Match for compatibility with DumpCompare"""
+    def __init__(self, content):
+        self._content = content
+        self.re = DummyRegex()
 
-            cycle = student_firstline_re.search(self.buff[0])
-            if not cycle:
-                student_done = student_done_re.search(self.buff.pop(0))
-                if student_done:
-                    self.cyc_num = int(student_done.group("cycle")) + 1
-                    return None, None, None
-                continue
-            else:
-                self.buff.pop(0)
+    def group(self, *args):
+        if args:
+            if args[0] == 'num':
+                return '1'
+            elif args[0] == 'instr':
+                return self._content.split('=')[1] if '=' in self._content else self._content
+        return self._content
 
-            self.cyc_num = int(cycle.group("cycle")) + 1
+    def groupdict(self):
+        return {
+            'num': '1',
+            'instr': self._content.split('=')[1] if '=' in self._content else self._content
+        }
 
-            acc = memory_write_re.search(self.buff[0])
-            if acc:
-                self.buff.pop(0)
-            else:
-                acc = register_write_re.search(self.buff[0])
-                if acc:
-                    self.buff.pop(0)
+class DummyRegex:
+    """Provides a dummy regex object to satisfy compatibility"""
+    def search(self, content):
+        if "Register Write" in content or "Memory Write" in content:
+            return DummyMatch(content)
+        return None
 
-            ovf = ovf_re.search(self.buff[0])
-            if ovf:
-                self.buff.pop(0)
-
-            if acc and nop_re.search(acc.group()):
-                continue
-
-            return cycle, acc, ovf
 
 class RarsReader:
     '''
@@ -175,9 +243,9 @@ class RarsReader:
 class DumpCompare:
     helpinfo = '''
 Helpful resources for Debugging:
-ms.trace : output from the VHDL testbench during program execution on your processor
+verilator.trace : output from the VHDL testbench during program execution on your processor
 rars.trace : output from RARS containing expected output
-vsim.wlf: waveform file generated by processor simulation, you can display this simulation in ModelSim without resimulating your processor by hand
+wave.vcd: waveform file generated by processor simulation, you can display this simulation in gtkwave without resimulating your processor by hand
 
 '''
 
@@ -222,7 +290,7 @@ vsim.wlf: waveform file generated by processor simulation, you can display this 
 
     def compare(self):
         '''
-        Compares the modelsim and rars dump files for a program
+        Compares the verilator and rars dump files for a program
         Returns True if sim succeeded, false otherwise
         '''
     
@@ -255,7 +323,7 @@ vsim.wlf: waveform file generated by processor simulation, you can display this 
             # Something is wrong... Loop as we may need to remove NOPs
             #
             # The way this looping works is that we first try to determine if
-            # either RARS or the student is apparantly writing to register 0
+            # either MARs or the student is apparantly writing to register 0
             # eg is it a NOP. Note... there is a case where a reg write to 
             # zero may be triggering overflow. This should be caught by the 
             # student as it is valid.
@@ -281,7 +349,7 @@ vsim.wlf: waveform file generated by processor simulation, you can display this 
                 if m_acc.group() == s_acc.group():
                     # Overflow is wrong, is the student a NOP?
                     if nop_re.search(s_acc.group()):
-                        s_cycle, s_acc, s_ovf = self.student_reader.read_next() 
+                        s_cycle, s_acc, s_ovf = student_reader.read_next() 
                         continue
                     else:
                         exp = "Overflow" if m_ovf else "No Overflow"

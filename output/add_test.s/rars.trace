@@ -1,0 +1,9 @@
+Register Write to Reg: 0x01 Val: 0x0000000A
+Register Write to Reg: 0x02 Val: 0x00000014
+Register Write to Reg: 0x03 Val: 0x0000001E
+Register Write to Reg: 0x04 Val: 0x00000028
+Register Write to Reg: 0x05 Val: 0x00000000
+Register Write to Reg: 0x00 Val: 0x00400018
+Register Write to Reg: 0x00 Val: 0x00000000
+
+Program terminated by dropping off the bottom.

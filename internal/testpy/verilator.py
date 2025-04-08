@@ -26,11 +26,17 @@ class Verilator:
             True if build succeeded, False otherwise
         """
         try:
-            subprocess.check_call(
-            [str(self.verilator_path), "--cc", "-f", f_file, "--exe", cpp_file],
-            env=self.env,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT)
+            # subprocess.check_call(
+            #     [str(self.verilator_path), "--cc", "-f", f_file, "--exe", cpp_file],
+            #     env=self.env,
+            #     stdout=subprocess.DEVNULL,
+            #     stderr=subprocess.STDOUT)
+            subprocess.check_call([
+                str(self.verilator_path),
+                "--cc",
+                "-f", f_file,
+                "--exe", cpp_file
+            ], env=self.env)
 
 
         except subprocess.CalledProcessError:
@@ -43,9 +49,15 @@ class Verilator:
             return False
 
         try:
+            # subprocess.check_call(
+            #     ["make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
+            #     env=self.env,
+            #     stdout=subprocess.DEVNULL,
+            #     stderr=subprocess.STDOUT)
             subprocess.check_call([
-                "make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"
-            ], env=self.env)
+                    "make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
+                env=self.env)
+
         except subprocess.CalledProcessError:
             logger.error("Make failed for Verilator build.")
             return False

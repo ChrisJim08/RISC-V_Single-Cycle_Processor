@@ -20,6 +20,7 @@ class bcolors:
 PASS_TEXT = f'{bcolors.OKGREEN}pass{bcolors.ENDC}'
 FAIL_TEXT = f'{bcolors.FAIL}fail{bcolors.ENDC}'
 
+
 class Output_Writer():
     def __init__(self, summary=False):
         self.summary = summary
@@ -33,11 +34,12 @@ class Output_Writer():
 
     def print(self, result):
         rars = PASS_TEXT if result.rars_pass else FAIL_TEXT
-        verilator = PASS_TEXT if result.modelsim_pass else FAIL_TEXT  
+        verilator = PASS_TEXT if result.verilator_pass else FAIL_TEXT  
+        # passed = PASS_TEXT if (result.rars_pass and result.modelsim_pass and result.compare_pass) else FAIL_TEXT
         passed = PASS_TEXT if result.compare_pass else FAIL_TEXT
 
-        cpi = result.proc_cycles / result.rars_inst if result.rars_inst else 0
-
+        cpi = result.proc_cycles / result.rars_inst
+        
         if self.summary:
             print(f' {str(result.asm_path)[-28:]:28} |  {rars}  |   {verilator}    |    {passed}     | {cpi:5.03} | {str(result.dest_path)}')
         else:
@@ -45,10 +47,11 @@ class Output_Writer():
             print(f'RARS simulation: {rars}')
             if not result.rars_pass:
                 print('RARS errors:')
-                print(result.rars_compile_errs)
+                for error in result.rars_compile_errs:
+                    print(error)
             print(f'Verilator simulation: {verilator}')
-            if not result.modelsim_pass:
-                print(result.modelsim_errs)
+            if not result.verilator_pass:
+                print(result.verilator_errs)
             print(f'Test Result: {passed}')
             if not result.compare_pass:
                 print('\\n'.join(result.compare_errs))

@@ -28,7 +28,7 @@ module control_unit(
   output logic       auipc_o,
   output logic       regf_wr_en_o,
   output logic       mem_wr_en_o,
-  output logic [1:0] regf_rd_src_o,
+  output logic [1:0] regf_rd_src_o, 
   
   input  logic       fnc7_h20_i,
   input  logic [2:0] funct3_i,
@@ -46,12 +46,12 @@ module control_unit(
                         || (op_code_i == I_IMM_TYPE);
   assign mem_wr_en_o  =    (op_code_i == S_TYPE);
   assign regf_wr_en_o =    (op_code_i != S_TYPE)
-                        && (op_code_i != B_TYPE);
+                        && (op_code_i != B_TYPE); 
 
   always_comb begin
     regf_rd_src_o = 2'b00;
     alu_op_o = '0;
-    unique casez (op_code_i)
+    unique casez (op_code_i) 
       I_OR_R_ALU: begin
         regf_rd_src_o = 2'b00;
         unique case (funct3_i)
@@ -59,7 +59,7 @@ module control_unit(
             alu_op_o = fnc7_h20_i ? 4'h1 : 4'h0; //SUB //ADD
           end
           3'h4: begin
-            alu_op_o = 4'h2; //XOR
+            alu_op_o = 4'h2; //XOR 
           end
           3'h6: begin
             alu_op_o = 4'h3; //OR
