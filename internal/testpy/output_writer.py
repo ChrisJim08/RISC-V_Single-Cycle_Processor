@@ -54,7 +54,7 @@ class Output_Writer():
                 print(result.verilator_errs)
             print(f'Test Result: {passed}')
             if not result.compare_pass:
-                print('\\n'.join(result.compare_errs))
+                print('\n'.join(result.compare_errs))
             else:
                 print(f'RARS Instructions: {result.rars_inst}')
                 print(f'Processor Cycles: {result.proc_cycles}')

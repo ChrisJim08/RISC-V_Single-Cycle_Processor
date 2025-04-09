@@ -16,20 +16,25 @@ class alignas(VL_CACHE_LINE_BYTES) Vrisc_v___024root final : public VerilatedMod
     // DESIGN SPECIFIC STATE
     VL_IN8(clk_i,0,0);
     VL_IN8(rst_i,0,0);
+    VL_IN8(imem_ld_i,0,0);
+    CData/*0:0*/ risc_v__DOT__halt;
     CData/*3:0*/ risc_v__DOT__alu_op;
     CData/*1:0*/ risc_v__DOT__regf_rd_src;
     CData/*7:0*/ risc_v__DOT__ld_data_ext__DOT__byte_sel;
     CData/*0:0*/ __VstlFirstIteration;
+    CData/*0:0*/ __VicoFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk_i__0;
     CData/*0:0*/ __VactContinue;
+    VL_IN16(imem_ld_addr_i,9,0);
+    SData/*9:0*/ risc_v__DOT__imem_addr;
     SData/*15:0*/ risc_v__DOT__ld_data_ext__DOT__halfword_sel;
+    VL_IN(imem_ld_data_i,31,0);
     IData/*31:0*/ risc_v__DOT__target_pc;
     IData/*31:0*/ risc_v__DOT__pc;
     IData/*31:0*/ risc_v__DOT__next_pc;
     IData/*31:0*/ risc_v__DOT__alu_src2;
     IData/*31:0*/ risc_v__DOT__alu_result;
     IData/*31:0*/ risc_v__DOT__regf_rs1_data;
-    IData/*31:0*/ risc_v__DOT__regf_rs2_data;
     IData/*31:0*/ risc_v__DOT__data_mem_r_data;
     IData/*31:0*/ risc_v__DOT__imm;
     IData/*31:0*/ risc_v__DOT__instr;
@@ -39,8 +44,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vrisc_v___024root final : public VerilatedMod
     VlUnpacked<IData/*31:0*/, 1024> risc_v__DOT__imem__DOT__mem;
     VlUnpacked<IData/*31:0*/, 32> risc_v__DOT__regfile__DOT__register_file;
     VlUnpacked<IData/*31:0*/, 1024> risc_v__DOT__dmem__DOT__mem;
-    VlUnpacked<CData/*0:0*/, 2> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
     VlTriggerVec<1> __VstlTriggered;
+    VlTriggerVec<1> __VicoTriggered;
     VlTriggerVec<1> __VactTriggered;
     VlTriggerVec<1> __VnbaTriggered;
 

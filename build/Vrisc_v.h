@@ -31,6 +31,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vrisc_v VL_NOT_FINAL : public VerilatedModel 
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clk_i,0,0);
     VL_IN8(&rst_i,0,0);
+    VL_IN8(&imem_ld_i,0,0);
+    VL_IN16(&imem_ld_addr_i,9,0);
+    VL_IN(&imem_ld_data_i,31,0);
 
     // CELLS
     // Public to allow access to /* verilator public */ items.

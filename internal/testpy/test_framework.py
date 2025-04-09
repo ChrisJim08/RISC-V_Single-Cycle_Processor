@@ -15,6 +15,13 @@ from dump_compare import DumpCompare
 from results import Results
 from output_writer import Output_Writer
 
+# import logging
+
+# logging.basicConfig(
+#     level=logging.DEBUG,  # Change to INFO or WARNING to reduce verbosity
+#     format='[%(levelname)s] %(message)s'
+# )
+
 def main():
     options = parse_args()
 
@@ -35,8 +42,7 @@ def main():
         print('\nprogram is exiting\n')
         exit(1)
 
-    f_file = "verilator.f"
-    #f_file = "sim/verilator.f"
+    f_file = "sim/verilator.f"
     verilator = Verilator(config.verilator_path, env)
     
     if not options.nocompile:
@@ -44,7 +50,7 @@ def main():
             print("Verilator build failed")
             exit(1)
         else:
-            print("All SV src files files compiled successfully")
+            print("All SystemVerilog src files files compiled successfully")
     else:
         print("Skipping compilation")
 
@@ -155,7 +161,11 @@ class SimWorker:
         rars.generate_hex(asm_path, self.container)
                 
         # Run verilator
-        verilator_msg = self.verilator.sim(Path("build") / "Vrisc_v", self.container / "verilator.trace", self.container / "verilator.log", timeout=self.options.sim_timeout)
+        verilator_msg = self.verilator.sim(Path("build") / "Vrisc_v", 
+                                           self.container / "verilator.trace", 
+                                           self.container / "verilator.log", 
+                                           timeout=self.options.sim_timeout,      
+                                            imem_hex=self.container / "imem.hex")
         compare, compare_out, inst, cycles = compare_dumps(self.options, self.container, self.container / "verilator.trace", self.container / 'rars.trace')
 
         inc_num = 1

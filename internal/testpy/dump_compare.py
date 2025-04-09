@@ -61,7 +61,9 @@ class StudentReader: ###########################################################
         self.in_reg_write = False
         self.in_mem_write = False
         self.reg_write_addr = None
+        self.reg_write_data = None
         self.mem_write_addr = None
+        
         
     def read_next(self):
         """
@@ -72,92 +74,111 @@ class StudentReader: ###########################################################
         an overflow. Each return type will be a match object.
 
         """
+        
+        #print(f"[VerilatorReader] Clock Cyle: 0")
 
         while True:
             line = self.f.readline()
             if not line:
-                print("[VerilatorReader] Reached EOF")
+                #print("[VerilatorReader] Reached EOF")
                 return None, None, None
 
             line = line.strip()
 
-            if line.startswith('#'):
-                self.cyc_num = int(line[1:])
-                print(f"[VerilatorReader] New cycle #{self.cyc_num}")
+            # New Cycle
+            if line == "1j":
+                self.cyc_num +=1
+                #print(f"[VerilatorReader] Clock Cyle: {self.cyc_num}")
                 continue
+            
+            # Register Write Changed
+            elif line.endswith('*'):
+                if line.startswith('1'):
+                    self.in_reg_write = True
+                    #print("[VerilatorReader] Register write enabled")
+                else:
+                    self.in_reg_write = False
+                    #print("[VerilatorReader] Register write disabled")
 
-            if line.startswith('b') and line.endswith(' .'):
+            # Register Write Address
+            elif self.in_reg_write and line.endswith(' >'):
+                self.reg_write_addr = int(line.split()[0][1:], 2)
+                #print(f"[VerilatorReader] Register write address: 0x{self.reg_write_addr:02X}")
+            
+            # Register Write data
+            elif self.in_reg_write and line.endswith(' 2'):
+                self.reg_write_data = int(line.split()[0][1:], 2)
+                #print(f"[VerilatorReader] Register write data: 0x{self.reg_write_data:08X}")
+
+            # PC
+            elif line.endswith(' G'):
                 pc_bin = line.split()[0][1:]
-                self.current_pc = int(pc_bin, 2)
-                print(f"[VerilatorReader] Found PC: 0x{self.current_pc:X}")
+                self.current_pc = int(pc_bin, 2) #########################################################################
+                #print(f"[VerilatorReader] Found PC: 0x{self.current_pc:X}")
+                if self.in_reg_write:
+                    cycle_match = DummyMatch(
+                        str(self.cyc_num), {'cycle': str(self.cyc_num)}
+                    )
+                    acc_match = DummyMatch(
+                        f"Register Write to Reg: 0x{self.reg_write_addr:02X} Val: 0x{self.reg_write_data:08X}",
+                        re_obj=register_write_re
+                    )
+                    # inst_match = DummyMatch(
+                    #     f"PC=0x{self.current_pc:X}", {'num': '1', 'instr': f"0x{self.current_instr:X}"}
+                    # )
+                    return cycle_match, acc_match, None
 
-            elif line.startswith('b') and line.endswith(' :'):
+            # Instruction
+            elif line.endswith(' 8'):
                 instr_bin = line.split()[0][1:]
                 self.current_instr = int(instr_bin, 2)
-                print(f"[VerilatorReader] Found instruction: 0x{self.current_instr:X}")
+                #print(f"[VerilatorReader] Found instruction: 0x{self.current_instr:X}")
 
-            elif line.startswith('b') and line.endswith(' *'):
-                self.in_reg_write = True
-                print("[VerilatorReader] Register write enabled")
+            # Memory Write Changed
+            elif line.endswith(' +'):
+                if line.startswith('1'):
+                    self.in_mem_write = True
+                    #print("[VerilatorReader] Memory write enabled")
+                else:
+                    self.in_mem_write = False
+                    #print("[VerilatorReader] Memory write disabled")
 
-            elif line.startswith('b') and line.endswith(' +'):
-                self.in_mem_write = True
-                print("[VerilatorReader] Memory write enabled")
+            # elif self.in_mem_write and line.startswith('b') and line.endswith(' 5'):
+            #     self.mem_write_addr = int(line.split()[0][1:], 2)
+            #     print(f"[VerilatorReader] Memory write address: 0x{self.mem_write_addr:X}")
 
-            elif self.in_reg_write and line.startswith('b') and line.endswith(' ?'):
-                self.reg_write_addr = int(line.split()[0][1:], 2)
-                print(f"[VerilatorReader] Register write address: x{self.reg_write_addr:02X}")
-
-            elif self.in_reg_write and line.startswith('b') and line.endswith(' 4'):
-                wr_data = int(line.split()[0][1:], 2)
-                print(f"[VerilatorReader] Register write data: 0x{wr_data:X}")
-                self.in_reg_write = False
-                return (self.cyc_num,
-                        DummyMatch(f"PC=0x{self.current_pc:X}"),
-                        DummyMatch(f"Register Write to Reg: 0x{self.reg_write_addr:02X} Val: 0x{wr_data:X}"))
-
-            elif self.in_mem_write and line.startswith('b') and line.endswith(' 5'):
-                self.mem_write_addr = int(line.split()[0][1:], 2)
-                print(f"[VerilatorReader] Memory write address: 0x{self.mem_write_addr:X}")
-
-            elif self.in_mem_write and line.startswith('b') and line.endswith(' 6'):
-                wr_data = int(line.split()[0][1:], 2)
-                print(f"[VerilatorReader] Memory write data: 0x{wr_data:X}")
-                self.in_mem_write = False
-                return (self.cyc_num,
-                        DummyMatch(f"PC=0x{self.current_pc:X}"),
-                        DummyMatch(f"Memory Write to Addr: 0x{self.mem_write_addr:X} Val: 0x{wr_data:X}"))
+            # elif self.in_mem_write and line.startswith('b') and line.endswith(' 6'):
+            #     wr_data = int(line.split()[0][1:], 2)
+            #     print(f"[VerilatorReader] Memory write data: 0x{wr_data:X}")
+            #     self.in_mem_write = False
+            #     return (self.cyc_num,
+            #             DummyMatch(f"PC=0x{self.current_pc:X}"),
+            #             DummyMatch(f"Memory Write to Addr: 0x{self.mem_write_addr:X} Val: 0x{wr_data:X}"))
 
 
     def close(self):
         self.f.close()
 
 class DummyMatch:
-    """Used to mimic re.Match for compatibility with DumpCompare"""
-    def __init__(self, content):
+    def __init__(self, content, groupdict=None, re_obj=None):
         self._content = content
-        self.re = DummyRegex()
+        self._groupdict = groupdict or {}
+        self.re = re_obj  # so DumpCompare can check s_acc.re
 
-    def group(self, *args):
-        if args:
-            if args[0] == 'num':
-                return '1'
-            elif args[0] == 'instr':
-                return self._content.split('=')[1] if '=' in self._content else self._content
-        return self._content
+    def group(self, key=None):
+        if key is None:
+            return self._content
+        return self._groupdict.get(key, 'na')
 
     def groupdict(self):
-        return {
-            'num': '1',
-            'instr': self._content.split('=')[1] if '=' in self._content else self._content
-        }
+        return self._groupdict
 
-class DummyRegex:
-    """Provides a dummy regex object to satisfy compatibility"""
-    def search(self, content):
-        if "Register Write" in content or "Memory Write" in content:
-            return DummyMatch(content)
-        return None
+# class DummyRegex:
+#     """Provides a dummy regex object to satisfy compatibility"""
+#     def search(self, content):
+#         if "Register Write" in content or "Memory Write" in content:
+#             return DummyMatch(content)
+#         return None
 
 
 class RarsReader:
@@ -180,6 +201,7 @@ class RarsReader:
         an overflow. Each return type will be a match object.
 
         """
+
         not_done = True
         while not_done:
 
@@ -192,7 +214,6 @@ class RarsReader:
                 return None, None, None
 
             inst = rars_firstline_re.search(self.buff[0])
-
 
 
             if not inst:
@@ -219,10 +240,12 @@ class RarsReader:
             else:
                 acc = register_write_re.search(self.buff[0]) # this will be None if this also fails
                 if acc:
+                    acc = normalize_rars_val(acc)
                     self.buff.pop(0)
                 else:
                     # Doesn't do anything to reg or mem (control flow)
                     return self.read_next()
+        
 
             # Lastly, do we have overflow?
             ovf = ovf_re.search(self.buff[0])
@@ -235,10 +258,23 @@ class RarsReader:
             else:
                 not_done = False
             
-        return inst, acc, ovf
+        return inst, acc, None #######################################
        
     def close(self):
         self.f.close()
+
+def normalize_rars_val(acc):
+    match = re.search(r'Val: (0x[0-9A-Fa-f]+)', acc.group())
+    if not match:
+        return acc  # fallback — no val string to normalize
+
+    val = int(match.group(1), 16)
+    val &= 0xFFFFFFFF  # clip to 32 bits
+    clipped_val = f"0x{val:08X}"
+
+    # replace the original value in the string
+    new_line = re.sub(r'Val: 0x[0-9A-Fa-f]+', f'Val: {clipped_val}', acc.group())
+    return DummyMatch(new_line, re_obj=acc.re)
 
 class DumpCompare:
     helpinfo = '''

@@ -1,9 +1,16 @@
+[inst #1] addi x1,x0,10
 Register Write to Reg: 0x01 Val: 0x0000000A
+[inst #2] addi x2,x0,20
 Register Write to Reg: 0x02 Val: 0x00000014
+[inst #3] add x3,x1,x2
 Register Write to Reg: 0x03 Val: 0x0000001E
+[inst #4] add x4,x3,x1
 Register Write to Reg: 0x04 Val: 0x00000028
+[inst #5] add x5,x0,x0
 Register Write to Reg: 0x05 Val: 0x00000000
+[inst #6] jal x0,4
 Register Write to Reg: 0x00 Val: 0x00400018
+[inst #7] addi x0,x0,0
 Register Write to Reg: 0x00 Val: 0x00000000
 
 Program terminated by dropping off the bottom.

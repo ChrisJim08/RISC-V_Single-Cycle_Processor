@@ -9,12 +9,7 @@ from pathlib import Path
 
 import logging
 logger = logging.getLogger(__name__)
-import logging
 
-logging.basicConfig(
-    level=logging.DEBUG,  # Change to INFO or WARNING to reduce verbosity
-    format='[%(levelname)s] %(message)s'
-)
 class Rars:
     """Interface into rars execution.
     """

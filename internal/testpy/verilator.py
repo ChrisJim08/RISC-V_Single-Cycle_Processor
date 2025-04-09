@@ -26,17 +26,17 @@ class Verilator:
             True if build succeeded, False otherwise
         """
         try:
-            # subprocess.check_call(
-            #     [str(self.verilator_path), "--cc", "-f", f_file, "--exe", cpp_file],
-            #     env=self.env,
-            #     stdout=subprocess.DEVNULL,
-            #     stderr=subprocess.STDOUT)
-            subprocess.check_call([
-                str(self.verilator_path),
-                "--cc",
-                "-f", f_file,
-                "--exe", cpp_file
-            ], env=self.env)
+            subprocess.check_call(
+                [str(self.verilator_path), "--cc", "-f", f_file, "--exe", cpp_file],
+                env=self.env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT)
+            # subprocess.check_call([
+            #     str(self.verilator_path),
+            #     "--cc",
+            #     "-f", f_file,
+            #     "--exe", cpp_file
+            # ], env=self.env)
 
 
         except subprocess.CalledProcessError:
@@ -49,14 +49,14 @@ class Verilator:
             return False
 
         try:
-            # subprocess.check_call(
-            #     ["make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
-            #     env=self.env,
-            #     stdout=subprocess.DEVNULL,
-            #     stderr=subprocess.STDOUT)
-            subprocess.check_call([
-                    "make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
-                env=self.env)
+            subprocess.check_call(
+                ["make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
+                env=self.env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT)
+            # subprocess.check_call([
+            #         "make", "-C", output_dir, "-f", f"V{top}.mk", f"V{top}"],
+            #     env=self.env)
 
         except subprocess.CalledProcessError:
             logger.error("Make failed for Verilator build.")
@@ -64,13 +64,15 @@ class Verilator:
 
         return True
 
-    def sim(self, binary_path, trace_path=None, log_file=None, timeout=10):
+    def sim(self, binary_path, trace_path=None, log_file=None, timeout=10, imem_hex=None):
         """Runs the Verilator simulation binary with optional trace path argument."""
         try:
             with open(log_file, "w") if log_file else subprocess.DEVNULL as f:
                 args = [str(binary_path)]
                 if trace_path:
                     args.append(str(trace_path))  # pass trace path as argv[1]
+                if imem_hex:
+                    args.append(str(imem_hex))    # becomes argv[2]
 
                 subprocess.run(args,
                             stdout=f,
