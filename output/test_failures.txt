@@ -1,1 +1,1 @@
-asm/sub.s
+asm/andi.s

@@ -53,7 +53,7 @@ class StudentReader: ###########################################################
     def __init__(self, path):
         self.path = path
         self.f = open(path, "r")
-        self.cyc_num = 0
+        self.cyc_num = 2
 
         # Trackers for state
         self.current_pc = None
@@ -240,7 +240,7 @@ class RarsReader:
             else:
                 acc = register_write_re.search(self.buff[0]) # this will be None if this also fails
                 if acc:
-                    acc = normalize_rars_val(acc)
+                    acc = normalize_rars_val(acc) #TODO
                     self.buff.pop(0)
                 else:
                     # Doesn't do anything to reg or mem (control flow)
