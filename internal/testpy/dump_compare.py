@@ -86,13 +86,13 @@ class StudentReader: ###########################################################
             line = line.strip()
 
             # New Cycle
-            if (line.startswith('#') and (int(line[-1]) % 2)):
+            if (line.startswith('#') and (int(line[-1]) % 2)): # trace pulse counter
                 self.cyc_num +=1
                 #print(f"[VerilatorReader] Clock Cyle: {self.cyc_num}")
                 continue
             
             # Register Write Changed
-            elif line.endswith('+'):
+            elif line.endswith('7'): # regf_wr_en
                 if line.startswith('1'):
                     self.in_reg_write = True
                     #print("[VerilatorReader] Register write enabled")
@@ -101,17 +101,17 @@ class StudentReader: ###########################################################
                     #print("[VerilatorReader] Register write disabled")
 
             # Register Write Address
-            elif line.endswith(' ?'):
+            elif line.endswith(' @'): # regf_rd_addr
                 self.reg_write_addr = int(line.split()[0][1:], 2)
                 #print(f"[VerilatorReader] Register write address: 0x{self.reg_write_addr:02X}")
             
             # Register Write data
-            elif line.endswith(' 3'):
+            elif line.endswith(' 8'): # regf_rd_data
                 self.reg_write_data = int(line.split()[0][1:], 2)
                 #print(f"[VerilatorReader] Register write data: 0x{self.reg_write_data:08X}")
 
             # PC
-            elif line.endswith(' H'):
+            elif line.endswith(' I'): # pc
                 pc_bin = line.split()[0][1:]
                 self.current_pc = int(pc_bin, 2) #########################################################################
                 #print(f"[VerilatorReader] Found PC: 0x{self.current_pc:X}")
@@ -129,13 +129,13 @@ class StudentReader: ###########################################################
                     return cycle_match, acc_match, None
 
             # Instruction
-            elif line.endswith(' 9'):
+            elif line.endswith(' $'): # instr
                 instr_bin = line.split()[0][1:]
                 self.current_instr = int(instr_bin, 2)
                 #print(f"[VerilatorReader] Found instruction: 0x{self.current_instr:X}")
 
             # Memory Write Changed
-            elif line.endswith(' ,'):
+            elif line.endswith('&'): # dmem_wr_en
                 if line.startswith('1'):
                     self.in_mem_write = True
                     #print("[VerilatorReader] Memory write enabled")
