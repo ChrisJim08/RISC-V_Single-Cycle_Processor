@@ -6,7 +6,6 @@ sim/lint.vlt
 
 // RTL Files
 src/riscv_core.sv
-src/mem.sv
 
 src/datapath/alu.sv
 src/datapath/imm_extension_unit.sv
@@ -21,8 +20,10 @@ src/utils/flop_reg.sv
 src/utils/mux2.sv
 src/utils/mux4.sv
 
+platform/mem.sv
+
 // Simulation Wrapper
-src/riscv_core_top.sv
+platform/riscv_core_top.sv
 
 // Top Module
 --top riscv_core_top
