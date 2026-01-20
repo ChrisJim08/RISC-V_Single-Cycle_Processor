@@ -19,16 +19,27 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module risc_v #(
+module riscv_core #(
   parameter AddressWidth = 10,
   parameter DataWidth = 32
 )(
   input logic  clk_i,
   input logic  rst_i, 
+
+
   input logic  imem_ld_i, 
   input logic  [AddressWidth-1:0] imem_ld_addr_i, 
   input logic  [DataWidth-1:0] imem_ld_data_i,
-  output logic halt_o  //Simulation signal
+
+  
+  // Data memory ports
+  input  logic [DataWidth-1:0]    dmem_r_data_i,
+  output logic                    dmem_wr_en_o,
+  output logic [AddressWidth-1:0] dmem_addr_o,
+  output logic [DataWidth-1:0]    dmem_wr_data_o,
+ 
+  // Simulation signal
+  output logic halt_o
 );
 
   // Internal signals
@@ -37,7 +48,7 @@ module risc_v #(
   logic       alu_src2_sel;
   logic       jal, jalr, branch;
   logic       auipc, env_instr;
-  logic       regf_wr_en, mem_wr_en;
+  logic       regf_wr_en;
 
   //Program Counter Wires
   logic                 pc_src_sel;
@@ -57,7 +68,6 @@ module risc_v #(
   logic [31:0] regf_rs2_data;
 
   logic [31:0] uimm_type_data;
-  logic [31:0] data_mem_r_data;
 
   logic [31:0] imm;
   logic [31:0] instr;
@@ -67,6 +77,10 @@ module risc_v #(
   logic [AddressWidth-1:0] imem_addr;
   
   assign alu_flag = alu_result[0];
+
+  // Data memory signals
+  assign dmem_addr_o    = alu_result[AddressWidth+1:2];
+  assign dmem_wr_data_o = regf_rs2_data;
 
   assign halt_o = (env_instr); //Simulation signal
 
@@ -119,7 +133,7 @@ module risc_v #(
     .branch_o(branch),
     .auipc_o(auipc),
     .regf_wr_en_o(regf_wr_en),
-    .mem_wr_en_o(mem_wr_en),
+    .mem_wr_en_o(dmem_wr_en_o),
     .regf_wd_src_o(regf_wd_src),
     .alu_src_o(alu_src2_sel),
     .alu_op_o(alu_op),
@@ -180,21 +194,10 @@ module risc_v #(
     .out_o(next_pc)
   );
 
-  mem #(
-    .AddressWidth(AddressWidth),
-    .DataWidth(DataWidth)
-  ) dmem (
-    .clk_i(clk_i),
-    .wr_en_i(mem_wr_en),
-    .addr_i(alu_result[AddressWidth+1:2]),
-    .wr_data_i(regf_rs2_data),
-    .r_data_o(data_mem_r_data)
-  );
-
   ld_extension_unit ld_data_ext (
     .funct3_i(funct3),    
     .offset_i(alu_result[1:0]),    
-    .data_i(data_mem_r_data),    
+    .data_i(dmem_r_data_i),    
     .data_o(ld_data)    
   );
 
@@ -206,6 +209,7 @@ module risc_v #(
     .in3_i(uimm_type_data),
     .out_o(regf_rd_data)
   );
+  
   mux2 utype_rd_data_mux (
     .sel_i(auipc), 
     .in0_i(imm), 

@@ -34,15 +34,15 @@ int main(int argc, char **argv) {
     const char* hex_path = (argc > 2) ? argv[2] : "imem.hex";
     std::vector<uint32_t> program = load_hex(hex_path);
     for (size_t i = 0; i < program.size(); ++i) {
-        top->imem_ld_i = 1;
-        top->imem_ld_addr_i = i;
-        top->imem_ld_data_i = program[i];
+        top->imem_load_i = 1;
+        top->imem_load_addr_i = i;
+        top->imem_load_data_i = program[i];
         top->eval();
         top->clk_i = 1;
         top->eval();
         top->clk_i = 0;
     }
-    top->imem_ld_i = 0;
+    top->imem_load_i = 0;
     top->eval();
 
     // Trace time
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
         top->eval();
         tfp->dump(main_time++);
     
-        // You can also add trace output here if needed
+        // Add trace output here if needed
     
         issued_instructions++; // Count 1 instr per rising edge
     

@@ -5,12 +5,12 @@
 sim/lint.vlt
 
 // RTL Files
-src/risc_v.sv
+src/riscv_core.sv
+src/mem.sv
 
 src/datapath/alu.sv
 src/datapath/imm_extension_unit.sv
 src/datapath/ld_extension_unit.sv
-src/datapath/mem.sv
 src/datapath/regfile.sv
 
 src/control/control_unit.sv
@@ -21,10 +21,11 @@ src/utils/flop_reg.sv
 src/utils/mux2.sv
 src/utils/mux4.sv
 
-// Testbench
+// Simulation Wrapper
+src/riscv_core_top.sv
 
 // Top Module
---top risc_v
+--top riscv_core_top
 
 // Build Output
 --Mdir build
