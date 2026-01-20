@@ -26,12 +26,10 @@ module riscv_core #(
   input logic  clk_i,
   input logic  rst_i, 
 
+  // Instruction memory ports
+  input  logic [DataWidth-1:0]    instr_i,
+  output logic [AddressWidth-1:0] imem_addr_o, 
 
-  input logic  imem_ld_i, 
-  input logic  [AddressWidth-1:0] imem_ld_addr_i, 
-  input logic  [DataWidth-1:0] imem_ld_data_i,
-
-  
   // Data memory ports
   input  logic [DataWidth-1:0]    dmem_r_data_i,
   output logic                    dmem_wr_en_o,
@@ -42,27 +40,40 @@ module riscv_core #(
   output logic halt_o
 );
 
+  // Data memory signals
+  assign dmem_addr_o    = alu_result[AddressWidth+1:2];
+  assign dmem_wr_data_o = regf_rs2_data;
+
+  // Instruction memory signals
+  assign imem_addr_o = pc[AddressWidth+1:2];
+
+  // Simulation signals
+  logic env_instr;
+  assign halt_o = env_instr;
+
   // Internal signals
-  logic [3:0] alu_op;
   logic [1:0] regf_wd_src;
   logic       alu_src2_sel;
   logic       jal, jalr, branch;
-  logic       auipc, env_instr;
-  logic       regf_wr_en;
+  logic       auipc;
 
-  //Program Counter Wires
+  //Program counter signals
   logic                 pc_src_sel;
   logic [DataWidth-1:0] target_pc;
   logic [DataWidth-1:0] pc;
   logic [DataWidth-1:0] pc_plus4;
   logic [DataWidth-1:0] next_pc;
 
-  //ALU Wires
+  //ALU signals
+  logic [3:0]  alu_op;
   logic        alu_flag;
   logic [31:0] alu_src2;
   logic [31:0] alu_result;
 
-  //Regfile Wires
+  assign alu_flag = alu_result[0];
+
+  //Regfile signals
+  logic        regf_wr_en;
   logic [31:0] regf_rd_data;
   logic [31:0] regf_rs1_data;
   logic [31:0] regf_rs2_data;
@@ -70,27 +81,16 @@ module riscv_core #(
   logic [31:0] uimm_type_data;
 
   logic [31:0] imm;
-  logic [31:0] instr;
 
   logic [31:0] ld_data;
 
-  logic [AddressWidth-1:0] imem_addr;
-  
-  assign alu_flag = alu_result[0];
-
-  // Data memory signals
-  assign dmem_addr_o    = alu_result[AddressWidth+1:2];
-  assign dmem_wr_data_o = regf_rs2_data;
-
-  assign halt_o = (env_instr); //Simulation signal
-
   // Instruction slicings
-  logic [6:0] op_code       = instr[6:0];
-  logic [2:0] funct3        = instr[14:12];
-  logic       funct7_h20    = instr[30];
-  logic [4:0] regf_rd_addr  = instr[11:7];
-  logic [4:0] regf_rs1_addr = instr[19:15];
-  logic [4:0] regf_rs2_addr = instr[24:20];
+  logic [6:0] op_code       = instr_i[6:0];
+  logic [2:0] funct3        = instr_i[14:12];
+  logic       funct7_h20    = instr_i[30];
+  logic [4:0] regf_rd_addr  = instr_i[11:7];
+  logic [4:0] regf_rs1_addr = instr_i[19:15];
+  logic [4:0] regf_rs2_addr = instr_i[24:20];
 
   flop_reg #(
     .DataWidth(DataWidth)
@@ -109,19 +109,6 @@ module riscv_core #(
     .b_i({{(DataWidth-3){1'b0}},
           3'd4}), 
     .y_o(pc_plus4)
-  );
-
-  assign imem_addr = imem_ld_i ? imem_ld_addr_i : pc[AddressWidth+1:2];
-
-  mem #(
-    .AddressWidth(AddressWidth),
-    .DataWidth(DataWidth)
-  ) imem (
-    .clk_i(clk_i),
-    .wr_en_i(imem_ld_i),
-    .addr_i(imem_addr),
-    .wr_data_i(imem_ld_data_i),
-    .r_data_o(instr)
   );
   
   control_unit control_unit (
@@ -153,7 +140,7 @@ module riscv_core #(
   );
 
   imm_extension_unit imm_extension_unit (
-    .instr_i(instr), 
+    .instr_i(instr_i), 
     .imm_o(imm)
   );
 
