@@ -161,7 +161,7 @@ class SimWorker:
         rars.generate_hex(asm_path, self.container)
                 
         # Run verilator
-        verilator_msg = self.verilator.sim(Path("build") / "Vrisc_v", 
+        verilator_msg = self.verilator.sim(Path("build") / "Vriscv_core_top", 
                                            self.container / "verilator.trace", 
                                            self.container / "verilator.log", 
                                            timeout=self.options.sim_timeout,      

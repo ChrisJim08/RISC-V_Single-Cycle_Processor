@@ -1,6 +1,6 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "Vrisc_v.h"
+#include "Vriscv_core_top.h"
 #include <iostream>
 
 #include <fstream>
@@ -23,7 +23,7 @@ std::vector<uint32_t> load_hex(const std::string& filename) {
 
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
-    Vrisc_v* top = new Vrisc_v;
+    Vriscv_core_top* top = new Vriscv_core_top;
     Verilated::traceEverOn(true);
     VerilatedVcdC* tfp = new VerilatedVcdC;
     const char* trace_path = (argc > 1) ? argv[1] : "verilator.trace";
