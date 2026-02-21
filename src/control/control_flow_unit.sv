@@ -26,7 +26,7 @@ module control_flow_unit #(
   // Compute target address
   assign pc_plus_offset = base_addr + addr_offset_i;
 
-  // Truncate to AddressWidth
+  // Truncate to AddressWidth   // TODO: Address Width??
   assign pc_target_o = pc_plus_offset;
 
   // Branch/jump decision logic

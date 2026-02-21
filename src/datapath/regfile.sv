@@ -43,7 +43,7 @@ module regfile #(
       for (i = 1; i < NumRegs; i++) begin 
         register_file[i] <= '0;
       end
-    end else if (wr_en_i && (rd_addr_i != '0) ) begin
+    end else if (wr_en_i && (rd_addr_i != '0)) begin
       register_file[rd_addr_i] <= rd_data_i;
     end
   end

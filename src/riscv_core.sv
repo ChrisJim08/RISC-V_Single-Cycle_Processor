@@ -31,9 +31,9 @@ module riscv_core #(
   output logic [AddressWidth-1:0] imem_addr_o, 
 
   // Data memory ports
+  output logic [AddressWidth-1:0] dmem_addr_o,
   input  logic [DataWidth-1:0]    dmem_r_data_i,
   output logic                    dmem_wr_en_o,
-  output logic [AddressWidth-1:0] dmem_addr_o,
   output logic [DataWidth-1:0]    dmem_wr_data_o,
  
   // Simulation signal

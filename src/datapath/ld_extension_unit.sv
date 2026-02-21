@@ -1,6 +1,6 @@
 module ld_extension_unit (
-  input  logic [2:0] funct3_i,    
-  input  logic [1:0] offset_i,    
+  input  logic [2:0]  funct3_i,    
+  input  logic [1:0]  offset_i,    
   input  logic [31:0] data_i,    
   output logic [31:0] data_o    
 );
