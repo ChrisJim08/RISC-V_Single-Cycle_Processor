@@ -2,10 +2,10 @@
 //  
 
 module mem #(
-  parameter  int unsigned DataWidth    = 32,
-  parameter  int unsigned DepthWords   = 2048,
-  localparam int unsigned IndexWidth   = $clog2(DepthWords),
-  localparam int unsigned NumBytes     = DataWidth / 8
+  parameter  int unsigned DataWidth  = 32,
+  parameter  int unsigned DepthWords = 2048,
+  localparam int unsigned IndexWidth = $clog2(DepthWords),
+  localparam int unsigned NumBytes   = DataWidth / 8
 ) (
   input  logic                  clk_i,
   input  logic                  wr_en_i,

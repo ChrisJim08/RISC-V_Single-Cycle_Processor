@@ -2,8 +2,12 @@
 //  Module: riscv_core_top
 //
 module riscv_core_top #(
-  parameter int unsigned AddressWidth = 10,
-  parameter int unsigned DataWidth    = 32
+  parameter  int unsigned AddressWidth = 32,
+  parameter  int unsigned DataWidth    = 32,
+  parameter  int unsigned ImemDepth    = 1024,
+  localparam int unsigned ImemIdxWidth = $clog2(DmemDepth),
+  parameter  int unsigned DmemDepth    = 2048,
+  localparam int unsigned DmemIdxWidth = $clog2(DmemDepth)
 )(
   input logic                     clk_i,
   input logic                     rst_i, 
@@ -42,23 +46,23 @@ module riscv_core_top #(
   );
 
   mem #(
-    .AddressWidth(AddressWidth),
-    .DataWidth(DataWidth)
+    .DataWidth(DataWidth),
+    .DepthWords(ImemDepth)
   ) imem (
     .clk_i(clk_i),
     .wr_en_i(imem_load_i),
-    .addr_i(imem_addr),
+    .addr_i(imem_addr[ImemIdxWidth+1:2]),
     .wr_data_i(imem_load_data_i),
     .r_data_o(instr)
   );
 
   mem #(
-    .AddressWidth(AddressWidth),
-    .DataWidth(DataWidth)
+    .DataWidth(DataWidth),
+    .DepthWords(DmemDepth)
   ) dmem (
     .clk_i(clk_i),
     .wr_en_i(dmem_wr_en),
-    .addr_i(dmem_addr),
+    .addr_i(dmem_addr[DmemIdxWidth+1:2]),
     .wr_data_i(dmem_wr_data),
     .r_data_o(dmem_r_data)
   );

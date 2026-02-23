@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module riscv_core #(
-  parameter AddressWidth = 10,
-  parameter DataWidth = 32
+  parameter AddressWidth = 32,
+  parameter DataWidth    = 32
 )(
   input logic  clk_i,
   input logic  rst_i, 
@@ -41,11 +41,11 @@ module riscv_core #(
 );
 
   // Data memory signals
-  assign dmem_addr_o    = alu_result[AddressWidth+1:2];
+  assign dmem_addr_o    = alu_result;
   assign dmem_wr_data_o = regf_rs2_data;
 
   // Instruction memory signals
-  assign imem_addr_o = pc[AddressWidth+1:2];
+  assign imem_addr_o = pc;
 
   // Simulation signals
   logic env_instr;
