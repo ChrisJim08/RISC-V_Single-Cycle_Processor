@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module regfile #(
-  parameter NumRegs      = 32,
-  parameter DataWidth    = 32,
+  parameter  NumRegs      = 32,
+  parameter  DataWidth    = 32,
   localparam AddressWidth = $clog2(NumRegs)
 ) (
   input  logic                    clk_i,

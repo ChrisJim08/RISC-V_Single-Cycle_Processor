@@ -2,36 +2,36 @@
 //  Module: riscv_core_top
 //
 module riscv_core_top #(
-  parameter  int unsigned AddressWidth = 32,
+  parameter  int unsigned AddrWidth    = 32,
   parameter  int unsigned DataWidth    = 32,
   parameter  int unsigned ImemDepth    = 1024,
   localparam int unsigned ImemIdxWidth = $clog2(DmemDepth),
   parameter  int unsigned DmemDepth    = 2048,
   localparam int unsigned DmemIdxWidth = $clog2(DmemDepth)
 )(
-  input logic                     clk_i,
-  input logic                     rst_i, 
-  input logic                     imem_load_i, 
-  input logic  [AddressWidth-1:0] imem_load_addr_i, 
-  input logic  [DataWidth-1:0]    imem_load_data_i,
-  output logic                    halt_o  
+  input  logic                 clk_i,
+  input  logic                 rst_i, 
+  input  logic                 imem_load_i, 
+  input  logic [AddrWidth-1:0] imem_load_addr_i, 
+  input  logic [DataWidth-1:0] imem_load_data_i,
+  output logic                 halt_o  
 );
 
   // Instruction memory signals
-  logic [AddressWidth-1:0] imem_addr;
-  logic [AddressWidth-1:0] core_imem_addr;
-  logic [DataWidth-1:0]    instr;
+  logic [AddrWidth-1:0] imem_addr;
+  logic [AddrWidth-1:0] core_imem_addr;
+  logic [DataWidth-1:0] instr;
 
   assign imem_addr = imem_load_i ? imem_load_addr_i : core_imem_addr;
 
   // Data memory signals
-  logic [DataWidth-1:0]    dmem_r_data;
-  logic                    dmem_wr_en;
-  logic [AddressWidth-1:0] dmem_addr;
-  logic [DataWidth-1:0]    dmem_wr_data;
+  logic [DataWidth-1:0] dmem_r_data;
+  logic                 dmem_wr_en;
+  logic [AddrWidth-1:0] dmem_addr;
+  logic [DataWidth-1:0] dmem_wr_data;
 
   riscv_core #(
-    .AddressWidth(AddressWidth),
+    .AddrWidth(AddrWidth),
     .DataWidth(DataWidth)
   ) riscv_core (
     .clk_i(clk_i),

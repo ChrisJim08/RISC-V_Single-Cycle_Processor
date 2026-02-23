@@ -20,21 +20,21 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module riscv_core #(
-  parameter AddressWidth = 32,
-  parameter DataWidth    = 32
+  parameter AddrWidth = 32,
+  parameter DataWidth = 32
 )(
-  input logic  clk_i,
-  input logic  rst_i, 
+  input logic clk_i,
+  input logic rst_i, 
 
   // Instruction memory ports
-  input  logic [DataWidth-1:0]    instr_i,
-  output logic [AddressWidth-1:0] imem_addr_o, 
+  input  logic [DataWidth-1:0] instr_i,
+  output logic [AddrWidth-1:0] imem_addr_o, 
 
   // Data memory ports
-  output logic [AddressWidth-1:0] dmem_addr_o,
-  input  logic [DataWidth-1:0]    dmem_r_data_i,
-  output logic                    dmem_wr_en_o,
-  output logic [DataWidth-1:0]    dmem_wr_data_o,
+  output logic [AddrWidth-1:0] dmem_addr_o,
+  input  logic [DataWidth-1:0] dmem_r_data_i,
+  output logic                 dmem_wr_en_o,
+  output logic [DataWidth-1:0] dmem_wr_data_o,
  
   // Simulation signal
   output logic halt_o
@@ -67,22 +67,22 @@ module riscv_core #(
   //ALU signals
   logic [3:0]  alu_op;
   logic        alu_flag;
-  logic [31:0] alu_src2;
-  logic [31:0] alu_result;
+  logic [DataWidth-1:0] alu_src2;
+  logic [DataWidth-1:0] alu_result;
 
   assign alu_flag = alu_result[0];
 
   //Regfile signals
   logic        regf_wr_en;
-  logic [31:0] regf_rd_data;
-  logic [31:0] regf_rs1_data;
-  logic [31:0] regf_rs2_data;
+  logic [DataWidth-1:0] regf_rd_data;
+  logic [DataWidth-1:0] regf_rs1_data;
+  logic [DataWidth-1:0] regf_rs2_data;
 
-  logic [31:0] uimm_type_data;
+  logic [DataWidth-1:0] uimm_type_data;
 
-  logic [31:0] imm;
+  logic [DataWidth-1:0] imm;
 
-  logic [31:0] ld_data;
+  logic [DataWidth-1:0] ld_data;
 
   // Instruction slicings
   logic [6:0] op_code       = instr_i[6:0];
@@ -127,7 +127,10 @@ module riscv_core #(
     .env_instr_o(env_instr)
   );
   
-  regfile regfile (
+  regfile #(
+    .NumRegs(32),
+    .DataWidth(DataWidth)
+  ) regfile (
     .clk_i(clk_i), 
     .rst_i(rst_i), 
     .wr_en_i(regf_wr_en), 
@@ -144,14 +147,18 @@ module riscv_core #(
     .imm_o(imm)
   );
 
-  mux2 alu_src2_mux (
+  mux2 #(
+    .DataWidth(DataWidth)
+  ) alu_src2_mux (
     .sel_i(alu_src2_sel), 
     .in0_i(regf_rs2_data), 
     .in1_i(imm), 
     .out_o(alu_src2)
   );
 
-  alu alu (
+  alu #(
+    .DataWidth(DataWidth)
+  ) alu (
     .src1_i(regf_rs1_data), 
     .src2_i(alu_src2), 
     .alu_op_i(alu_op), 
@@ -188,7 +195,9 @@ module riscv_core #(
     .data_o(ld_data)    
   );
 
-  mux4 regf_wr_data_mux (
+  mux4 #(
+    .DataWidth(DataWidth)
+  ) regf_wr_data_mux (
     .sel_i(regf_wd_src), 
     .in0_i(alu_result), 
     .in1_i(ld_data),
@@ -197,7 +206,9 @@ module riscv_core #(
     .out_o(regf_rd_data)
   );
   
-  mux2 utype_rd_data_mux (
+  mux2 #(
+    .DataWidth(DataWidth)
+  ) utype_rd_data_mux (
     .sel_i(auipc), 
     .in0_i(imm), 
     .in1_i(target_pc),

@@ -1,5 +1,5 @@
 module control_flow_unit #(
-  parameter DataWidth    = 32
+  parameter DataWidth = 32
 ) (
   input  logic                  jal_i,
   input  logic                  jalr_i,
