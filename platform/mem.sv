@@ -1,6 +1,5 @@
 //  Module: mem
 //  
-
 module mem #(
   parameter  int unsigned DataWidth  = 32,
   parameter  int unsigned DepthWords = 2048,
